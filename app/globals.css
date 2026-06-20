@@ -1,0 +1,97 @@
+:root {
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  min-height: 100vh;
+  background: radial-gradient(1200px 600px at 50% -10%, #16223c, #0b1018);
+  color: #e7ebf3;
+  font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+/* ---------- Landing page ---------- */
+.landing {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+.landing .wrap {
+  max-width: 760px;
+  width: 100%;
+}
+.landing h1 {
+  font-size: 30px;
+  margin: 0 0 8px;
+}
+.landing p.lead {
+  color: #9aa4b8;
+  font-size: 16px;
+  margin: 0 0 28px;
+  line-height: 1.55;
+}
+.landing .cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 620px) {
+  .landing .cards {
+    grid-template-columns: 1fr;
+  }
+}
+.landing a.card {
+  display: block;
+  text-decoration: none;
+  background: #161d2e;
+  border: 1px solid #2a3550;
+  border-radius: 16px;
+  padding: 22px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.landing a.card:hover {
+  border-color: #5b9bf5;
+  transform: translateY(-2px);
+}
+.landing a.card h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: #fff;
+}
+.landing a.card span {
+  color: #9aa4b8;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.landing .tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #7bd88f;
+  background: #2f5d3a;
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-bottom: 10px;
+}
+.landing .tag.blue {
+  color: #8fc1f5;
+  background: #234063;
+}
+.landing .foot {
+  margin-top: 26px;
+  color: #6b7480;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.landing .foot a {
+  color: #5b9bf5;
+  text-decoration: none;
+}

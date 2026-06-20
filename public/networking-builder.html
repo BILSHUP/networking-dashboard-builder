@@ -242,7 +242,7 @@ function renderInt(){
 function renderAI(){
  const el=document.getElementById("tab-ai");const p=PROFILE||store.profile;
  const topPeople=RANKED.slice(0,200).map((c,i)=>`<option value="${c.rank-1}">${esc(c.name)} — ${esc(c.company||c.position)} [${esc(c.tier)}]</option>`).join("");
- el.innerHTML=`<div class="callout">AI tools use your pasted resume + profile. Drafts only — review before sending. (Uses on-device AI when opened inside Claude; otherwise gives you a copy-paste prompt.)</div>
+ el.innerHTML=`<div class="callout">AI tools use your pasted resume + profile. Drafts only — review before sending.</div>
   <div class="panel"><h3>✉ Message Composer</h3>
    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><select id="mp" style="min-width:280px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px">${topPeople}</select>
    <select id="mt" style="background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px"><option value="a LinkedIn connection note under 280 characters">Connection note</option><option value="a short message asking for a 15-minute career chat">15-min chat ask</option><option value="a thank-you note to send within 24 hours of a chat">Thank-you</option></select></div>
@@ -258,22 +258,20 @@ function renderAI(){
   runAI(prompt,document.getElementById("rstat"),document.getElementById("rout"));});
 }
 
-// ---------- AI helper (askClaude when available; copy-prompt fallback) ----------
-function aiReady(){return window.cowork&&window.cowork.askClaude;}
-function extractAI(r){if(r==null)return"";if(typeof r==="string")return r;if(typeof r==="object"){if(typeof r.text==="string")return r.text;if(typeof r.content==="string")return r.content;if(Array.isArray(r.content))return r.content.map(x=>(x&&(x.text||x.value))||"").join("\n");if(typeof r.output==="string")return r.output;if(typeof r.completion==="string")return r.completion;}return JSON.stringify(r);}
+// ---------- AI helper (calls the /api/ai serverless route; copy-prompt fallback) ----------
 async function runAI(prompt,statEl,outEl){
  window._fb=prompt;
- outEl.innerHTML=`<div class="small">Working — if no draft appears in ~45s, use this:</div><div style="margin-top:6px"><button class="btn" onclick="navigator.clipboard.writeText(window._fb||'').then(()=>{this.textContent='Prompt copied — paste in chat';})">Copy prompt for chat</button></div>`;
+ outEl.innerHTML=`<div class="small">Working…</div>`;
  statEl.textContent="Working…";
  try{
-  if(!aiReady())throw new Error("in-app AI not available here");
-  const to=new Promise((_,rj)=>setTimeout(()=>rj(new Error("timed out")),45000));
-  const r=await Promise.race([window.cowork.askClaude(prompt,[]),to]);
-  const t=extractAI(r); if(!t||!t.trim())throw new Error("empty");
+  const resp=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});
+  if(!resp.ok){let m="request failed";try{const j=await resp.json();if(j&&j.error)m=j.error;}catch(_){}throw new Error(m);}
+  const j=await resp.json(); const t=(j&&j.text)||"";
+  if(!t||!t.trim())throw new Error("empty response");
   window._ai=t; statEl.textContent="";
   outEl.innerHTML=`<div class="row"><div style="white-space:pre-wrap;font-size:13px">${esc(t)}</div><div style="margin-top:8px"><button class="btn" onclick="navigator.clipboard.writeText(window._ai||'').then(()=>{this.textContent='Copied!';})">Copy</button></div></div>`;
  }catch(e){ statEl.textContent="";
-  outEl.innerHTML=`<div class="row"><div class="small">In-app AI didn't return (${esc(e.message)}). Click <b>Copy prompt</b> and paste it into your Claude chat — it includes your resume &amp; profile.</div><div style="margin-top:8px"><button class="btn" onclick="navigator.clipboard.writeText(window._fb||'').then(()=>{this.textContent='Prompt copied — paste in chat';})">Copy prompt</button></div></div>`; }
+  outEl.innerHTML=`<div class="row"><div class="small">The AI didn't respond (${esc(e.message)}). You can copy the prompt and paste it into any AI chat — it includes your resume &amp; profile.</div><div style="margin-top:8px"><button class="btn" onclick="navigator.clipboard.writeText(window._fb||'').then(()=>{this.textContent='Prompt copied';})">Copy prompt</button></div></div>`; }
 }
 
 // ---------- init ----------

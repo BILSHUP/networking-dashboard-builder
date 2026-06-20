@@ -1,0 +1,15 @@
+{
+  "name": "Networking Dashboard Builder",
+  "short_name": "Networking",
+  "description": "Rank your LinkedIn network and draft AI outreach. Built for students.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0e1320",
+  "theme_color": "#0e1320",
+  "icons": [
+    { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
+  ]
+}

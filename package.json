@@ -1,0 +1,24 @@
+{
+  "name": "networking-dashboard-builder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Student networking dashboard builder — ranks your LinkedIn connections and drafts AI outreach. Next.js + Anthropic API.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "node scripts/generate-icons.mjs && next build",
+    "start": "next start",
+    "gen-icons": "node scripts/generate-icons.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest"
+  }
+}
