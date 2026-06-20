@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Networking Dashboard Builder</title>
+<style>
+:root{color-scheme:dark;--bg:#0e1320;--card:#161d2e;--card2:#1c2638;--line:#2a3550;--txt:#e7ebf3;--mut:#94a0b8;--accent:#5b9bf5;
+--greenbg:#2f5d3a;--bluebg:#234063;--orangebg:#5e4126;--yellowbg:#5a4f23;--graybg:#2a3344;--redbg:#5e2b2b;--purplebg:#3d3357;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:14.5px;line-height:1.5}
+header{background:linear-gradient(135deg,#13203a,#0a0f1a);padding:20px 24px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:20px}header p{margin:4px 0 0;color:var(--mut);font-size:13px}
+.wrap{max-width:1000px;margin:0 auto;padding:22px 16px 70px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+.panel h3{margin:0 0 14px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:10px}
+label.fld{display:block;margin-bottom:12px;font-size:13px;color:var(--mut)}
+label.fld input,label.fld textarea,label.fld select{display:block;width:100%;margin-top:5px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:14px;font-family:inherit}
+textarea{min-height:90px;resize:vertical}
+.chks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chk{background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:13px;cursor:pointer;user-select:none}
+.chk.on{background:var(--bluebg);border-color:var(--accent);color:#fff}
+.btn{border:1px solid var(--line);background:var(--card2);color:var(--accent);font-weight:600;border-radius:9px;padding:9px 16px;font-size:14px;cursor:pointer}
+.btn:hover{background:#243250}.btn.primary{background:var(--accent);color:#07101f;border-color:var(--accent)}
+.row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:9px}
+.row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.row .nm{font-weight:700}.row .nm a{color:var(--accent);text-decoration:none}
+.row .sub{color:var(--mut);font-size:13px;margin-top:2px}.row .why{font-size:12.5px;color:var(--mut);margin-top:6px}
+.chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:600;margin-left:6px}
+select.status{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12px;font-weight:600}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);font-weight:600;padding:12px 14px;cursor:pointer;white-space:nowrap}
+nav button.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab{display:none}.tab.active{display:block}
+.small{font-size:12.5px;color:var(--mut)}
+.callout{background:var(--bluebg);border-left:4px solid var(--accent);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px}
+.banner{background:var(--yellowbg);border-radius:8px;padding:9px 13px;font-size:12.5px;margin-bottom:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:13px}.stat .n{font-size:23px;font-weight:700;color:var(--accent)}.stat .l{font-size:12px;color:var(--mut)}
+a.dl{color:var(--accent)}
+.hide{display:none}
+.tierColor-High{background:var(--greenbg)}.tierColor-Medium{background:var(--bluebg)}.tierColor-Low{background:var(--graybg)}
+.muted{opacity:.85}
+</style>
+</head>
+<body>
+<header>
+<h1>Networking Dashboard Builder <span class="small" style="font-weight:400">· prototype</span></h1>
+<p>Fill out your profile, upload your LinkedIn connections, and generate a personalized, ranked networking + internship dashboard.</p>
+</header>
+<div class="wrap">
+
+<div id="setup">
+ <div class="banner"><b>Prototype.</b> Runs 100% in your browser — nothing is uploaded anywhere. A production version would add accounts, a live internship feed, and a saved database. LinkedIn data uses <b>your own export</b> (compliant), never scraping.</div>
+
+ <div class="panel"><h3>1 · Your profile</h3>
+  <label class="fld">Full name<input id="f_name" placeholder="Jordan Lee"></label>
+  <label class="fld">LinkedIn URL<input id="f_url" placeholder="linkedin.com/in/..."></label>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+   <label class="fld" style="flex:1;min-width:200px">University<input id="f_school" placeholder="UNC Wilmington"></label>
+   <label class="fld" style="flex:1;min-width:140px">Graduation year<input id="f_year" placeholder="2029"></label>
+  </div>
+  <label class="fld">Major(s)<input id="f_major" placeholder="Accounting & Finance"></label>
+  <label class="fld">Career goals (1-2 sentences)<textarea id="f_goals" placeholder="Land a 2027 internship in public accounting or wealth management; long term become a CPA."></textarea></label>
+  <label class="fld">Target fields (pick all that apply)</label>
+  <div class="chks" id="f_fields"></div>
+  <label class="fld" style="margin-top:12px">Dream / target companies (comma-separated, optional)<input id="f_companies" placeholder="CLA, Deloitte, Fidelity"></label>
+  <label class="fld">Location preference (optional)<input id="f_loc" placeholder="Charlotte, NYC, remote"></label>
+  <label class="fld">Paste your resume (plain text)<textarea id="f_resume" style="min-height:130px" placeholder="Paste your resume here — used by the AI tools to tailor messages and resumes."></textarea></label>
+ </div>
+
+ <div class="panel"><h3>2 · Your LinkedIn connections</h3>
+  <div class="small" style="margin-bottom:10px">Get your file the compliant way: LinkedIn → <b>Settings &amp; Privacy → Data Privacy → Get a copy of your data → Connections → Request archive</b>. It emails you a <b>Connections.csv</b> in a few minutes. Then upload or paste it below.</div>
+  <label class="fld">Upload Connections.csv<input type="file" id="f_csv" accept=".csv"></label>
+  <div class="small" style="margin:6px 0">…or paste the CSV contents:</div>
+  <textarea id="f_csvtext" placeholder="First Name,Last Name,URL,Email Address,Company,Position,Connected On&#10;..."></textarea>
+  <div id="csvstat" class="small" style="margin-top:8px"></div>
+ </div>
+
+ <button class="btn primary" id="buildBtn" style="font-size:15px;padding:11px 22px">Build my dashboard →</button>
+ <div id="builderr" class="small" style="color:#f59a9a;margin-top:10px"></div>
+</div>
+
+<div id="app" class="hide">
+ <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+  <div id="appwho"></div>
+  <button class="btn" id="editBtn">← Edit profile / re-upload</button>
+ </div>
+ <nav id="nav"></nav>
+ <div class="tab active" id="tab-net"></div>
+ <div class="tab" id="tab-int"></div>
+ <div class="tab" id="tab-ai"></div>
+</div>
+
+</div>
+<script>
+const LS="ndbuilder_v1";
+let store=JSON.parse(localStorage.getItem(LS)||"{}");
+if(!store.profile)store.profile=null; if(!store.status)store.status={};
+function save(){localStorage.setItem(LS,JSON.stringify(store));}
+function esc(s){return (s==null?"":(""+s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+const FIELD_OPTS=["Public Accounting","Corporate Finance / FP&A","Wealth & Asset Management","Investment Banking / Markets","Consulting","Software Engineering / Tech","Marketing","Data & Analytics","Operations / Supply Chain"];
+const FIELDS={
+"Public Accounting":{firms:["deloitte","pwc","kpmg","ernst","grant thornton"," rsm","bdo","baker tilly","forvis","cherry bekaert","crowe","eisneramper","cla","cliftonlarsonallen","clifton larson","plante moran","cohnreznick","marcum"],rel:["account","audit","assurance","tax","cpa"]},
+"Corporate Finance / FP&A":{firms:["bank of america","wells fargo","truist","jpmorgan","citi","capital one","honeywell","lowe","duke energy","ally","brighthouse","barings"],rel:["finance","financial","fp&a","treasury","corporate development","controller","analyst"]},
+"Wealth & Asset Management":{firms:["fidelity","vanguard","blackrock","pimco","morgan stanley","merrill","raymond james","edward jones","northwestern mutual","tiaa","prudential","t. rowe","brookfield"],rel:["wealth","investment","advisor","portfolio","asset management","cfp","cfa"]},
+"Investment Banking / Markets":{firms:["goldman","morgan stanley","jpmorgan","barclays","evercore","lazard","houlihan","moelis","ubs","deutsche","incap"],rel:["investment banking","m&a","capital markets","trading","equity","credit","securities"]},
+"Consulting":{firms:["mckinsey","bain","bcg","accenture","deloitte","kearney","oliver wyman","pwc","ey-parthenon"],rel:["consult","strategy","advisory"]},
+"Software Engineering / Tech":{firms:["google","microsoft","amazon","meta","apple","nvidia","two sigma","citadel","stripe","databricks","ncino","live oak"],rel:["software","engineer","developer","swe","backend","frontend","full stack","machine learning"]},
+"Marketing":{firms:[],rel:["marketing","brand","growth","social media","content","seo","communications","public relations"]},
+"Data & Analytics":{firms:[],rel:["data","analytics","analyst","business intelligence","sql","python","statistics"]},
+"Operations / Supply Chain":{firms:[],rel:["operations","supply chain","logistics","procurement","process"]},
+};
+const SENIOR=["managing principal","principal","partner","managing director","vice president","associate vice president","senior manager","sr. manager","director","chief","head of","executive"," vp ","avp"];
+const MID=["manager","senior associate","senior analyst","lead ","advisor"];
+const EARLY=["associate","analyst","staff","coordinator","specialist","accountant","auditor","consultant"];
+
+// ---------- setup wiring ----------
+let chosenFields=[];
+function renderFieldChips(){const c=document.getElementById("f_fields");c.innerHTML=FIELD_OPTS.map(f=>`<span class="chk${chosenFields.includes(f)?' on':''}" data-f="${esc(f)}">${esc(f)}</span>`).join("");
+ c.querySelectorAll(".chk").forEach(el=>el.addEventListener("click",()=>{const f=el.getAttribute("data-f");chosenFields.includes(f)?chosenFields=chosenFields.filter(x=>x!==f):chosenFields.push(f);renderFieldChips();}));}
+renderFieldChips();
+
+let csvRows=[];
+function setCsvStat(){document.getElementById("csvstat").innerHTML=csvRows.length?`<span style="color:#7bd88f">Parsed <b>${csvRows.length}</b> connections.</span>`:"";}
+function parseCSV(text){
+ const lines=text.split(/\r?\n/);
+ let hi=lines.findIndex(l=>/first name/i.test(l)&&/last name/i.test(l)); if(hi<0)hi=0;
+ const pl=(line)=>{const out=[];let cur="",q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}else if(c===','&&!q){out.push(cur);cur="";}else cur+=c;}out.push(cur);return out;};
+ const hdr=pl(lines[hi]).map(h=>h.trim().toLowerCase());
+ const I=n=>hdr.indexOf(n);
+ const iF=I("first name"),iL=I("last name"),iU=I("url"),iC=I("company"),iP=I("position");
+ const rows=[];
+ for(let r=hi+1;r<lines.length;r++){if(!lines[r]||!lines[r].trim())continue;const f=pl(lines[r]);const name=((f[iF]||"")+" "+(f[iL]||"")).trim();if(!name)continue;
+  rows.push({name,company:(f[iC]||"").trim(),position:(f[iP]||"").trim(),url:(f[iU]||"").trim()});}
+ return rows;
+}
+document.getElementById("f_csv").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=ev=>{try{csvRows=parseCSV(ev.target.result);setCsvStat();}catch(err){document.getElementById("csvstat").innerHTML='<span style="color:#f59a9a">Could not parse that file.</span>';}};rd.readAsText(file);});
+document.getElementById("f_csvtext").addEventListener("input",e=>{const t=e.target.value;if(t.trim().length>20){try{csvRows=parseCSV(t);setCsvStat();}catch(err){}}});
+
+// ---------- scoring ----------
+function buildBanks(fields,companies){
+ let firms=[],rel=[];
+ (fields.length?fields:FIELD_OPTS).forEach(f=>{const b=FIELDS[f];if(b){firms=firms.concat(b.firms);rel=rel.concat(b.rel);}});
+ companies.forEach(c=>{if(c.trim())firms.push(c.trim().toLowerCase());});
+ return {firms:[...new Set(firms)],rel:[...new Set(rel)]};
+}
+function scoreConn(position,company,banks){
+ const o=" "+(position+" "+company).toLowerCase()+" ";
+ const firm=banks.firms.find(f=>f&&o.includes(f))||"";
+ const rel=banks.rel.some(t=>o.includes(t));
+ const senior=SENIOR.some(t=>o.includes(t)),mid=MID.some(t=>o.includes(t)),early=EARLY.some(t=>o.includes(t));
+ const intern=o.includes("intern");
+ let sc=0; if(firm)sc+=4; if(rel)sc+=2; if(senior)sc+=4;else if(mid)sc+=2;else if(early)sc+=1; if(intern)sc+=2; if(intern&&firm)sc+=1;
+ const tier=sc>=8?"High":sc>=4?"Medium":"Low";
+ let why;
+ const fdisp=firm?firm.replace(/\b\w/g,m=>m.toUpperCase()):"";
+ if(firm&&senior)why=`Senior at a target company (${fdisp}) — strong referral weight + advice.`;
+ else if(firm&&intern)why=`Interned/working at a target company (${fdisp}) — ask exactly how they got in; a "referred by" bridge.`;
+ else if(firm)why=`At a target company (${fdisp}) — referral path + day-to-day intel.`;
+ else if(intern&&rel)why=`Intern in a relevant role — ask how they landed it; intel + possible referral.`;
+ else if(intern)why=`Interning somewhere — can share how they got it; good leads + practice.`;
+ else if(rel&&senior)why=`Senior person in your field — advice and possible referral.`;
+ else if(rel)why=`Relevant-field background — compare notes; possible leads.`;
+ else why=`Connection — keep warm; networks compound.`;
+ return {sc,tier,why};
+}
+
+// ---------- build ----------
+function readProfile(){
+ return {name:document.getElementById("f_name").value.trim(),url:document.getElementById("f_url").value.trim(),
+  school:document.getElementById("f_school").value.trim(),year:document.getElementById("f_year").value.trim(),
+  major:document.getElementById("f_major").value.trim(),goals:document.getElementById("f_goals").value.trim(),
+  fields:chosenFields.slice(),companies:document.getElementById("f_companies").value.split(",").map(s=>s.trim()).filter(Boolean),
+  loc:document.getElementById("f_loc").value.trim(),resume:document.getElementById("f_resume").value.trim()};
+}
+function fillProfile(p){
+ document.getElementById("f_name").value=p.name||"";document.getElementById("f_url").value=p.url||"";
+ document.getElementById("f_school").value=p.school||"";document.getElementById("f_year").value=p.year||"";
+ document.getElementById("f_major").value=p.major||"";document.getElementById("f_goals").value=p.goals||"";
+ chosenFields=(p.fields||[]).slice();renderFieldChips();
+ document.getElementById("f_companies").value=(p.companies||[]).join(", ");
+ document.getElementById("f_loc").value=p.loc||"";document.getElementById("f_resume").value=p.resume||"";
+}
+let RANKED=[],PROFILE=null;
+function build(){
+ const p=readProfile();
+ const err=document.getElementById("builderr");
+ if(!p.name){err.textContent="Add your name.";return;} if(!csvRows.length){err.textContent="Upload or paste your LinkedIn Connections.csv first.";return;}
+ err.textContent="";
+ const banks=buildBanks(p.fields,p.companies);
+ RANKED=csvRows.map(c=>{const s=scoreConn(c.position,c.company,banks);return {...c,...s};});
+ const ord={High:0,Medium:1,Low:2};
+ RANKED.sort((a,b)=>ord[a.tier]-ord[b.tier]||b.sc-a.sc||a.name.localeCompare(b.name));
+ RANKED.forEach((c,i)=>c.rank=i+1);
+ PROFILE=p; store.profile=p; store.csvCount=csvRows.length; save();
+ // persist a compact ranked snapshot so reload restores
+ store.ranked=RANKED.map(c=>({name:c.name,company:c.company,position:c.position,url:c.url,tier:c.tier,why:c.why,rank:c.rank}));save();
+ showApp();
+}
+function showApp(){document.getElementById("setup").classList.add("hide");document.getElementById("app").classList.remove("hide");renderAll();}
+function showSetup(){document.getElementById("app").classList.add("hide");document.getElementById("setup").classList.remove("hide");}
+
+// ---------- app tabs ----------
+const tierClass=t=>"tierColor-"+t;
+function renderAll(){
+ const p=PROFILE||store.profile; RANKED=RANKED.length?RANKED:(store.ranked||[]);
+ document.getElementById("appwho").innerHTML=`<div style="font-size:17px;font-weight:700">${esc(p.name)}</div><div class="small">${esc(p.school)}${p.year?" · Class of "+esc(p.year):""}${p.major?" · "+esc(p.major):""} · targets: ${esc((p.fields||[]).join(", ")||"all fields")}</div>`;
+ const nav=document.getElementById("nav");
+ const tabs=[["net","My Network ("+RANKED.length+")"],["int","Internships"],["ai","AI Coach"]];
+ nav.innerHTML=tabs.map((t,i)=>`<button data-t="${t[0]}" class="${i==0?'active':''}">${t[1]}</button>`).join("");
+ nav.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{nav.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.getElementById("tab-"+b.getAttribute("data-t")).classList.add("active");}));
+ renderNet();renderInt();renderAI();
+}
+function cStat(i){return store.status[i]||"Not contacted";}
+const CSTATUS=["Not contacted","Request sent","Connected","Replied","Met / chatted","Asked for referral"];
+function renderNet(){
+ const el=document.getElementById("tab-net");
+ const byTier={High:0,Medium:0,Low:0};RANKED.forEach(c=>byTier[c.tier]++);
+ el.innerHTML=`<div class="cards"><div class="stat"><div class="n">${RANKED.length}</div><div class="l">Connections ranked</div></div><div class="stat"><div class="n" style="color:#7bd88f">${byTier.High}</div><div class="l">High value</div></div><div class="stat"><div class="n">${byTier.Medium}</div><div class="l">Medium</div></div><div class="stat"><div class="n">${byTier.Low}</div><div class="l">Low</div></div></div>
+  <div class="callout">Ranked by <b>title seniority × your target fields</b>, with interns &amp; peers weighted up (they reveal how they landed roles and let you ask for a referral). High = your warmest, ready-now assets.</div>
+  <div style="margin-bottom:10px"><input id="netq" placeholder="Search name / company..." style="width:60%;min-width:200px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 11px"> <label class="small"><input type="checkbox" id="netlow"> show Low</label></div>
+  <div id="netlist"></div>`;
+ const draw=()=>{const q=(document.getElementById("netq").value||"").toLowerCase();const showLow=document.getElementById("netlow").checked;
+  let rows=RANKED.filter(c=>{if(!showLow&&c.tier==="Low"&&!q)return false;const blob=(c.name+" "+c.company+" "+c.position+" "+c.why).toLowerCase();return !q||blob.indexOf(q)>=0;});
+  const list=document.getElementById("netlist");
+  list.innerHTML=`<div class="small" style="margin-bottom:8px">Showing ${rows.length} of ${RANKED.length}</div>`+rows.slice(0,400).map(c=>{const i=c.rank-1;const st=cStat(i);
+   const link=c.url?`<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}</a>`:esc(c.name);
+   return `<div class="row"><div class="top"><div><div class="nm">#${c.rank} · ${link} <span class="chip ${tierClass(c.tier)}">${esc(c.tier)}</span></div><div class="sub">${esc(c.position||"")}${c.company?" · "+esc(c.company):""}</div><div class="why">${esc(c.why)}</div></div><div><select class="status" data-i="${i}">${CSTATUS.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join("")}</select></div></div></div>`;}).join("")+(rows.length>400?'<div class="small">Showing first 400 — search to narrow.</div>':"");
+  list.querySelectorAll("select.status").forEach(s=>s.addEventListener("change",e=>{store.status[e.target.dataset.i]=e.target.value;save();}));};
+ document.getElementById("netq").addEventListener("input",draw);document.getElementById("netlow").addEventListener("change",draw);draw();
+}
+function renderInt(){
+ const el=document.getElementById("tab-int");const p=PROFILE||store.profile;
+ el.innerHTML=`<div class="callout">In production this pulls from a live internship feed filtered to your school, major, and timeline. In this prototype, generate suggestions with AI from your profile.</div>
+  <button class="btn primary" id="intgo">Suggest internships for me (AI)</button> <span id="intstat" class="small"></span><div id="intout" style="margin-top:14px"></div>`;
+ document.getElementById("intgo").addEventListener("click",()=>{
+  const prompt=`Suggest 12 realistic internship programs for this student, grouped by fit (Strong fit / Reach). For each: company, program name, why it fits, and the application window if known. Be honest about fit and flag CS-only programs if the student is not technical.\n\nSTUDENT: name ${p.name}; school ${p.school}; class of ${p.year}; major ${p.major}; target fields: ${(p.fields||[]).join(", ")}; dream companies: ${(p.companies||[]).join(", ")}; location: ${p.loc}; goals: ${p.goals}`;
+  runAI(prompt,document.getElementById("intstat"),document.getElementById("intout"));});
+}
+function renderAI(){
+ const el=document.getElementById("tab-ai");const p=PROFILE||store.profile;
+ const topPeople=RANKED.slice(0,200).map((c,i)=>`<option value="${c.rank-1}">${esc(c.name)} — ${esc(c.company||c.position)} [${esc(c.tier)}]</option>`).join("");
+ el.innerHTML=`<div class="callout">AI tools use your pasted resume + profile. Drafts only — review before sending. (Uses on-device AI when opened inside Claude; otherwise gives you a copy-paste prompt.)</div>
+  <div class="panel"><h3>✉ Message Composer</h3>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><select id="mp" style="min-width:280px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px">${topPeople}</select>
+   <select id="mt" style="background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px"><option value="a LinkedIn connection note under 280 characters">Connection note</option><option value="a short message asking for a 15-minute career chat">15-min chat ask</option><option value="a thank-you note to send within 24 hours of a chat">Thank-you</option></select></div>
+   <button class="btn" id="mgo">Compose</button> <span id="mstat" class="small"></span><div id="mout" style="margin-top:12px"></div></div>
+  <div class="panel"><h3>📄 Resume Tailor</h3>
+   <input id="rt" placeholder="Company + role to tailor for (e.g., Deloitte Audit Intern)" style="width:70%;min-width:220px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px;margin-bottom:10px">
+   <button class="btn" id="rgo">Tailor</button> <span id="rstat" class="small"></span><div id="rout" style="margin-top:12px"></div></div>`;
+ document.getElementById("mgo").addEventListener("click",()=>{const c=RANKED[document.getElementById("mp").value];const type=document.getElementById("mt").value;
+  const prompt=`Write ${type} from ${p.name} (a ${p.major} student at ${p.school}, class of ${p.year}, targeting ${(p.fields||[]).join("/")}) to this person. Warm, specific, concise, human — like a curious student, one clear low-friction ask, no buzzwords. PERSON: ${c.name}, ${c.position} at ${c.company}.\n\nSENDER RESUME:\n${p.resume||"(not provided)"}`;
+  runAI(prompt,document.getElementById("mstat"),document.getElementById("mout"));});
+ document.getElementById("rgo").addEventListener("click",()=>{const tgt=document.getElementById("rt").value.trim()||"a target role";
+  const prompt=`Tailor this student's resume for: ${tgt}. Output PLAIN TEXT sections: 1) Positioning summary (2 sentences aligned to the company's values); 2) Which experiences to lead with; 3) 5 tailored, quantified bullets; 4) ATS keywords; 5) one honest gap + fix. Truthful; never invent experience.\n\nSTUDENT: ${p.major} at ${p.school}, class of ${p.year}, goals: ${p.goals}.\nRESUME:\n${p.resume||"(not provided — ask the user to paste it)"}`;
+  runAI(prompt,document.getElementById("rstat"),document.getElementById("rout"));});
+}
+
+// ---------- AI helper (askClaude when available; copy-prompt fallback) ----------
+function aiReady(){return window.cowork&&window.cowork.askClaude;}
+function extractAI(r){if(r==null)return"";if(typeof r==="string")return r;if(typeof r==="object"){if(typeof r.text==="string")return r.text;if(typeof r.content==="string")return r.content;if(Array.isArray(r.content))return r.content.map(x=>(x&&(x.text||x.value))||"").join("\n");if(typeof r.output==="string")return r.output;if(typeof r.completion==="string")return r.completion;}return JSON.stringify(r);}
+async function runAI(prompt,statEl,outEl){
+ window._fb=prompt;
+ outEl.innerHTML=`<div class="small">Working — if no draft appears in ~45s, use this:</div><div style="margin-top:6px"><button class="btn" onclick="navigator.clipboard.writeText(window._fb||'').then(()=>{this.textContent='Prompt copied — paste in chat';})">Copy prompt for chat</button></div>`;
+ statEl.textContent="Working…";
+ try{
+  if(!aiReady())throw new Error("in-app AI not available here");
+  const to=new Promise((_,rj)=>setTimeout(()=>rj(new Error("timed out")),45000));
+  const r=await Promise.race([window.cowork.askClaude(prompt,[]),to]);
+  const t=extractAI(r); if(!t||!t.trim())throw new Error("empty");
+  window._ai=t; statEl.textContent="";
+  outEl.innerHTML=`<div class="row"><div style="white-space:pre-wrap;font-size:13px">${esc(t)}</div><div style="margin-top:8px"><button class="btn" onclick="navigator.clipboard.writeText(window._ai||'').then(()=>{this.textContent='Copied!';})">Copy</button></div></div>`;
+ }catch(e){ statEl.textContent="";
+  outEl.innerHTML=`<div class="row"><div class="small">In-app AI didn't return (${esc(e.message)}). Click <b>Copy prompt</b> and paste it into your Claude chat — it includes your resume &amp; profile.</div><div style="margin-top:8px"><button class="btn" onclick="navigator.clipboard.writeText(window._fb||'').then(()=>{this.textContent='Prompt copied — paste in chat';})">Copy prompt</button></div></div>`; }
+}
+
+// ---------- init ----------
+document.getElementById("buildBtn").addEventListener("click",build);
+document.getElementById("editBtn").addEventListener("click",showSetup);
+if(store.profile){ fillProfile(store.profile); if(store.ranked&&store.ranked.length){RANKED=store.ranked.slice();PROFILE=store.profile;showApp();} }
+</script>
+</body>
+</html>
