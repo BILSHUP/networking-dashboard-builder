@@ -75,31 +75,33 @@ a.dl{color:var(--accent)}
   <div class="wstep hide" data-step="2">
    <h2 class="wq">Where do you study?</h2>
    <p class="wsub">Helps FootIn spot alumni and weight your network correctly.</p>
-   <label class="fld">University<input id="f_school" placeholder="Start typing your school…" list="schoolList" autocomplete="off"></label>
+   <label class="fld">University<input id="f_school" placeholder="Start typing your school — any school works" list="schoolList" autocomplete="off"></label>
+   <div class="small" style="margin:-6px 0 12px;color:var(--mut)">Don't see your school in the suggestions? Just type it in — anything you enter is accepted.</div>
    <datalist id="schoolList">
-    <option>University of North Carolina Wilmington</option><option>University of North Carolina at Chapel Hill</option>
-    <option>North Carolina State University</option><option>Wake Forest University</option><option>Duke University</option>
-    <option>University of South Carolina</option><option>Clemson University</option><option>University of Georgia</option>
-    <option>University of Virginia</option><option>Pennsylvania State University</option><option>Indiana University</option>
-    <option>University of Michigan</option><option>University of Texas at Austin</option><option>New York University</option>
-    <option>Boston College</option><option>University of Florida</option><option>Ohio State University</option>
+    <option>University of North Carolina Wilmington</option><option>University of North Carolina at Chapel Hill</option><option>University of North Carolina at Charlotte</option><option>University of North Carolina at Greensboro</option><option>North Carolina State University</option><option>East Carolina University</option><option>Appalachian State University</option><option>Western Carolina University</option><option>Wake Forest University</option><option>Duke University</option><option>Elon University</option><option>High Point University</option><option>Campbell University</option><option>Davidson College</option>
+    <option>University of South Carolina</option><option>Clemson University</option><option>College of Charleston</option><option>Coastal Carolina University</option><option>Furman University</option>
+    <option>University of Georgia</option><option>Georgia Institute of Technology</option><option>Georgia State University</option><option>Emory University</option><option>Kennesaw State University</option>
+    <option>University of Virginia</option><option>Virginia Tech</option><option>James Madison University</option><option>George Mason University</option><option>William &amp; Mary</option>
+    <option>University of Florida</option><option>Florida State University</option><option>University of Central Florida</option><option>University of Miami</option><option>University of South Florida</option>
+    <option>University of Tennessee</option><option>University of Alabama</option><option>Auburn University</option><option>University of Kentucky</option><option>University of Mississippi</option><option>Mississippi State University</option><option>Louisiana State University</option><option>University of Arkansas</option><option>Vanderbilt University</option><option>Tulane University</option>
+    <option>Pennsylvania State University</option><option>University of Pittsburgh</option><option>Temple University</option><option>Drexel University</option><option>Villanova University</option><option>University of Pennsylvania</option><option>Carnegie Mellon University</option>
+    <option>The Ohio State University</option><option>University of Michigan</option><option>Michigan State University</option><option>Indiana University</option><option>Purdue University</option><option>University of Illinois Urbana-Champaign</option><option>University of Wisconsin–Madison</option><option>University of Minnesota</option><option>University of Iowa</option><option>University of Notre Dame</option><option>Marquette University</option><option>Miami University</option><option>University of Cincinnati</option><option>Northwestern University</option><option>University of Chicago</option><option>DePaul University</option><option>Loyola University Chicago</option>
+    <option>University of Texas at Austin</option><option>Texas A&amp;M University</option><option>Texas Christian University</option><option>Southern Methodist University</option><option>University of Houston</option><option>Baylor University</option><option>Texas Tech University</option><option>Rice University</option>
+    <option>University of Oklahoma</option><option>University of Kansas</option><option>University of Missouri</option><option>University of Nebraska–Lincoln</option>
+    <option>New York University</option><option>Columbia University</option><option>Cornell University</option><option>Fordham University</option><option>Syracuse University</option><option>Baruch College (CUNY)</option><option>University at Buffalo</option><option>Rutgers University</option><option>Seton Hall University</option>
+    <option>Boston College</option><option>Boston University</option><option>Northeastern University</option><option>Bentley University</option><option>Babson College</option><option>Bryant University</option><option>University of Massachusetts Amherst</option><option>Harvard University</option><option>Massachusetts Institute of Technology</option>
+    <option>University of Connecticut</option><option>University of Maryland</option><option>Georgetown University</option><option>George Washington University</option><option>American University</option><option>University of Delaware</option>
+    <option>University of Southern California</option><option>University of California, Berkeley</option><option>University of California, Los Angeles</option><option>Santa Clara University</option><option>Pepperdine University</option><option>San Diego State University</option><option>Stanford University</option>
+    <option>Arizona State University</option><option>University of Arizona</option><option>University of Colorado Boulder</option><option>University of Denver</option><option>University of Utah</option><option>University of Washington</option><option>University of Oregon</option><option>Brigham Young University</option>
    </datalist>
-   <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <label class="fld" style="flex:1;min-width:150px">Graduation year
-     <select id="f_year">
-      <option value="" selected disabled>Select year</option>
-      <option>2025</option><option>2026</option><option>2027</option><option>2028</option>
-      <option>2029</option><option>2030</option><option>2031</option><option value="Other">Other</option>
-     </select></label>
-    <label class="fld" style="flex:1;min-width:200px">Major
-     <select id="f_major">
-      <option value="" selected disabled>Select your major</option>
-      <option>Accounting</option><option>Finance</option><option>Economics</option>
-      <option>Business Administration / Management</option><option>Marketing</option>
-      <option>Information Systems / MIS</option><option>Supply Chain / Operations</option>
-      <option>Data Analytics</option><option>Computer Science</option><option value="Other">Other</option>
-     </select></label>
-   </div>
+   <label class="fld" style="max-width:220px">Graduation year
+    <select id="f_year">
+     <option value="" selected disabled>Select year</option>
+     <option>2025</option><option>2026</option><option>2027</option><option>2028</option>
+     <option>2029</option><option>2030</option><option>2031</option><option value="Other">Other</option>
+    </select></label>
+   <label class="fld" style="margin-top:6px">Major(s) — pick all that apply</label>
+   <div class="chks" id="f_majors"></div>
   </div>
 
   <div class="wstep hide" data-step="3">
@@ -183,6 +185,12 @@ function renderFieldChips(){const c=document.getElementById("f_fields");c.innerH
  c.querySelectorAll(".chk").forEach(el=>el.addEventListener("click",()=>{const f=el.getAttribute("data-f");chosenFields.includes(f)?chosenFields=chosenFields.filter(x=>x!==f):chosenFields.push(f);renderFieldChips();}));}
 renderFieldChips();
 
+const MAJOR_OPTS=["Accounting","Finance","Economics","Business Administration / Management","Marketing","Information Systems / MIS","Supply Chain / Operations","Data Analytics","Computer Science","Entrepreneurship","International Business","Real Estate","Statistics","Mathematics","Communications","Human Resources"];
+let chosenMajors=[];
+function renderMajorChips(){const c=document.getElementById("f_majors");if(!c)return;c.innerHTML=MAJOR_OPTS.map(m=>`<span class="chk${chosenMajors.includes(m)?' on':''}" data-m="${esc(m)}">${esc(m)}</span>`).join("");
+ c.querySelectorAll(".chk").forEach(el=>el.addEventListener("click",()=>{const m=el.getAttribute("data-m");chosenMajors.includes(m)?chosenMajors=chosenMajors.filter(x=>x!==m):chosenMajors.push(m);renderMajorChips();}));}
+renderMajorChips();
+
 let csvRows=[];
 function setCsvStat(){document.getElementById("csvstat").innerHTML=csvRows.length?`<span style="color:#4d7a5b">Parsed <b>${csvRows.length}</b> connections.</span>`:"";}
 function parseCSV(text){
@@ -232,15 +240,16 @@ function scoreConn(position,company,banks){
 function readProfile(){
  return {name:document.getElementById("f_name").value.trim(),url:document.getElementById("f_url").value.trim(),
   school:document.getElementById("f_school").value.trim(),year:document.getElementById("f_year").value.trim(),
-  major:document.getElementById("f_major").value.trim(),goals:document.getElementById("f_goals").value.trim(),
+  major:chosenMajors.join(", "),goals:document.getElementById("f_goals").value.trim(),
   fields:chosenFields.slice(),companies:document.getElementById("f_companies").value.split(",").map(s=>s.trim()).filter(Boolean),
   loc:document.getElementById("f_loc").value.trim(),resume:document.getElementById("f_resume").value.trim()};
 }
 function fillProfile(p){
  document.getElementById("f_name").value=p.name||"";document.getElementById("f_url").value=p.url||"";
  document.getElementById("f_school").value=p.school||"";document.getElementById("f_year").value=p.year||"";
- document.getElementById("f_major").value=p.major||"";document.getElementById("f_goals").value=p.goals||"";
+ document.getElementById("f_goals").value=p.goals||"";
  chosenFields=(p.fields||[]).slice();renderFieldChips();
+ chosenMajors=(p.major?(""+p.major).split(",").map(s=>s.trim()).filter(Boolean):[]);renderMajorChips();
  document.getElementById("f_companies").value=(p.companies||[]).join(", ");
  document.getElementById("f_loc").value=p.loc||"";document.getElementById("f_resume").value=p.resume||"";
 }
