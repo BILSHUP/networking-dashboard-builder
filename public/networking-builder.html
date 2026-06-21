@@ -151,6 +151,7 @@ a.dl{color:var(--accent)}
  </div>
  <nav id="nav"></nav>
  <div class="tab active" id="tab-net"></div>
+ <div class="tab" id="tab-rec"></div>
  <div class="tab" id="tab-int"></div>
  <div class="tab" id="tab-ai"></div>
 </div>
@@ -278,10 +279,10 @@ function renderAll(){
  const p=PROFILE||store.profile; RANKED=RANKED.length?RANKED:(store.ranked||[]);
  document.getElementById("appwho").innerHTML=`<div style="font-size:17px;font-weight:700">${esc(p.name)}</div><div class="small">${esc(p.school)}${p.year?" · Class of "+esc(p.year):""}${p.major?" · "+esc(p.major):""} · targets: ${esc((p.fields||[]).join(", ")||"all fields")}</div>`;
  const nav=document.getElementById("nav");
- const tabs=[["net","My Network ("+RANKED.length+")"],["int","Internships"],["ai","AI Coach"]];
+ const tabs=[["net","My Network ("+RANKED.length+")"],["rec","Reach out"],["int","Internships"],["ai","AI Coach"]];
  nav.innerHTML=tabs.map((t,i)=>`<button data-t="${t[0]}" class="${i==0?'active':''}">${t[1]}</button>`).join("");
  nav.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{nav.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.getElementById("tab-"+b.getAttribute("data-t")).classList.add("active");}));
- renderNet();renderInt();renderAI();
+ renderNet();renderRec();renderInt();renderAI();
 }
 function cStat(i){return store.status[i]||"Not contacted";}
 const CSTATUS=["Not contacted","Request sent","Connected","Replied","Met / chatted","Asked for referral"];
@@ -300,6 +301,84 @@ function renderNet(){
    return `<div class="row"><div class="top"><div><div class="nm">#${c.rank} · ${link} <span class="chip ${tierClass(c.tier)}">${esc(c.tier)}</span></div><div class="sub">${esc(c.position||"")}${c.company?" · "+esc(c.company):""}</div><div class="why">${esc(c.why)}</div></div><div><select class="status" data-i="${i}">${CSTATUS.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join("")}</select></div></div></div>`;}).join("")+(rows.length>400?'<div class="small">Showing first 400 — search to narrow.</div>':"");
   list.querySelectorAll("select.status").forEach(s=>s.addEventListener("change",e=>{store.status[e.target.dataset.i]=e.target.value;save();}));};
  document.getElementById("netq").addEventListener("input",draw);document.getElementById("netlow").addEventListener("change",draw);draw();
+}
+// ---------- Reach out: recommended NON-connections (FootIn's signature feature) ----------
+const FIRST=["James","Maria","David","Sarah","Michael","Jessica","Daniel","Ashley","Chris","Emily","Jordan","Taylor","Marcus","Priya","Diego","Hannah","Kevin","Olivia","Ryan","Sofia","Andre","Grace","Nathan","Maya"];
+const LAST=["Smith","Johnson","Williams","Brown","Garcia","Miller","Davis","Rodriguez","Martinez","Nguyen","Patel","Kim","Chen","Wilson","Anderson","Thomas","Lee","Bell","Torres","Nair","Ellis","Walker","Reed","Foster"];
+const RCITIES=["Charlotte, NC","New York, NY","Atlanta, GA","Chicago, IL","Dallas, TX","Boston, MA"];
+const TITLES={
+ "Public Accounting":["Audit Associate","Senior Auditor","Audit Manager","Tax Senior","Assurance Manager"],
+ "Corporate Finance / FP&A":["Financial Analyst","Senior FP&A Analyst","Finance Manager","Treasury Analyst"],
+ "Wealth & Asset Management":["Investment Analyst","Financial Advisor","Portfolio Associate","Wealth Manager"],
+ "Investment Banking / Markets":["Investment Banking Analyst","IB Associate","Capital Markets Analyst"],
+ "Consulting":["Business Analyst","Consultant","Senior Consultant","Engagement Manager"],
+ "Software Engineering / Tech":["Software Engineer","Senior Software Engineer","Product Manager","Data Engineer"],
+ "Marketing":["Marketing Coordinator","Brand Manager","Growth Marketing Manager"],
+ "Data & Analytics":["Data Analyst","BI Analyst","Analytics Manager"],
+ "Operations / Supply Chain":["Operations Analyst","Supply Chain Analyst","Operations Manager"],
+ _default:["Analyst","Associate","Manager"]};
+const DISPLAY_FIRMS={
+ "Public Accounting":["Deloitte","PwC","KPMG","EY","Grant Thornton","RSM","BDO","CLA"],
+ "Corporate Finance / FP&A":["Bank of America","Wells Fargo","Truist","JPMorgan","Honeywell","Lowe's","Capital One"],
+ "Wealth & Asset Management":["Fidelity","Vanguard","Morgan Stanley","Merrill","Raymond James","BlackRock"],
+ "Investment Banking / Markets":["Goldman Sachs","Morgan Stanley","JPMorgan","Barclays","Evercore","Lazard"],
+ "Consulting":["McKinsey & Company","Bain & Company","BCG","Deloitte","Accenture","Oliver Wyman"],
+ "Software Engineering / Tech":["Google","Microsoft","Amazon","Meta","Stripe","nCino","Live Oak Bank"],
+ "Marketing":["Red Ventures","Wells Fargo","Lowe's","Bank of America","IBM"],
+ "Data & Analytics":["Capital One","Bank of America","Red Ventures","Honeywell","IBM"],
+ "Operations / Supply Chain":["Lowe's","Honeywell","Amazon","Duke Energy","Ingersoll Rand"],
+ _default:["Deloitte","Bank of America","EY","Wells Fargo"]};
+let _seed=0; function pick(a){return a[(_seed++)%a.length];}
+function concreteLoc(loc){loc=(loc||"").trim();if(!loc||/no preference|open to anywhere|^other$/i.test(loc))return "";return loc;}
+function mkPerson(company,field,school,loc,target){
+ const name=pick(FIRST)+" "+pick(LAST);
+ const title=pick(TITLES[field]||TITLES._default);
+ return {name,title,company,field,location:loc||pick(RCITIES),school,target};
+}
+// DEMO MODE (provider-ready): synthesizes alumni at your target companies/fields.
+// To go LIVE, replace this body with a fetch to a serverless /api/find-matches route
+// (querying a people-data provider like Proxycurl / People Data Labs / Apollo), or
+// return a list the user pasted. Keep the shape: {name,title,company,field,location,school,target}.
+async function getCandidates(p){
+ _seed=0;
+ const fields=(p.fields&&p.fields.length)?p.fields:["Consulting","Corporate Finance / FP&A","Public Accounting"];
+ const school=p.school||"your university";
+ const loc=concreteLoc(p.loc);
+ const targets=(p.companies||[]).filter(Boolean);
+ const out=[];
+ targets.slice(0,5).forEach((co,i)=>out.push(mkPerson(co,fields[i%fields.length],school,loc,true)));
+ fields.forEach(f=>{(DISPLAY_FIRMS[f]||DISPLAY_FIRMS._default).slice(0,3).forEach(co=>out.push(mkPerson(co,f,school,loc,targets.some(t=>t.toLowerCase()===String(co).toLowerCase()))));});
+ return out;
+}
+function scoreCand(c,p,loc){
+ let sc=5; // shared school (always) + relevant field
+ if(c.target)sc+=4;
+ const locMatch=!!(loc&&c.location===loc); if(locMatch)sc+=2;
+ const t=(c.title||"").toLowerCase();
+ if(SENIOR.some(x=>t.includes(x.trim())))sc+=3;else if(MID.some(x=>t.includes(x.trim())))sc+=2;else sc+=1;
+ const why=`${c.title} at ${c.company}${c.location?(" in "+c.location):""} and a ${p.school||"fellow"} alum you're not connected to yet.${c.target?(" "+c.company+" is on your target list."):""} A natural warm intro for your ${c.field} search${locMatch?(" in "+c.location):""} — open with the shared ${p.school||"school"} tie and ask about their path or a referral.`;
+ return {sc,why,locMatch};
+}
+async function renderRec(){
+ const el=document.getElementById("tab-rec");const p=PROFILE||store.profile;
+ el.innerHTML=`<div class="callout"><b>FootIn's signature feature.</b> People you're <b>not</b> connected to yet who could help — matched on your school, field, target companies, and location, then filtered against people you already know.<div class="small" style="margin-top:6px">Demo candidates generated from your profile. To go live, connect a people-data source or paste an alumni list — the matching, the “why,” and the notes all stay exactly the same.</div></div><div id="reclist" class="small">Finding people who could help…</div>`;
+ const existing=new Set((RANKED||[]).map(c=>(c.name||"").toLowerCase().trim()));
+ const loc=concreteLoc(p.loc);
+ let cands=await getCandidates(p);
+ cands=cands.filter(c=>!existing.has(c.name.toLowerCase().trim()));
+ cands.forEach(c=>{c._s=scoreCand(c,p,loc);});
+ cands.sort((a,b)=>b._s.sc-a._s.sc); cands=cands.slice(0,8);
+ const list=document.getElementById("reclist");
+ if(!cands.length){list.innerHTML=`<div class="callout">Add target fields and a few dream companies in your profile, then come back—FootIn will surface alumni at those companies you should reach out to.</div>`;return;}
+ list.classList.remove("small");
+ list.innerHTML=`<div class="small" style="margin-bottom:10px">${cands.length} people you're not connected to yet, ranked by how much they overlap with your goals.</div>`+cands.map((c,i)=>{
+  const chips=[`🎓 ${esc(p.school||"Same school")} alum`,`🎯 ${esc(c.field)}`].concat(c.target?["🏢 Target company"]:[]).concat(c._s.locMatch?[`📍 ${esc(c.location)}`]:[]);
+  const ln=`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(c.name+" "+c.company)}`;
+  return `<div class="row"><div class="top"><div style="min-width:0"><div class="nm">${esc(c.name)} <a href="${ln}" target="_blank" rel="noopener" class="small" style="font-weight:600">Find on LinkedIn ↗</a></div><div class="sub">${esc(c.title)} · ${esc(c.company)}${c.location?(" · "+esc(c.location)):""}</div><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${chips.map(x=>`<span class="chip" style="background:var(--bluebg);color:var(--accent)">${x}</span>`).join("")}</div><div class="why" style="margin-top:8px"><b>Why reach out:</b> ${esc(c._s.why)}</div></div></div><div style="margin-top:10px"><button class="btn primary" data-rec="${i}">✍ Write intro note</button> <span class="small" id="recstat-${i}"></span><div id="recout-${i}" style="margin-top:8px"></div></div></div>`;
+ }).join("");
+ list.querySelectorAll("button[data-rec]").forEach(btn=>btn.addEventListener("click",()=>{const i=+btn.dataset.rec;const c=cands[i];
+  const prompt=`Write a LinkedIn connection note under 280 characters from ${p.name||"a student"}, a ${(p.major||"")} student at ${p.school||"my university"}${p.year?(" (class of "+p.year+")"):""}, to ${c.name}, ${c.title} at ${c.company}${c.location?(" in "+c.location):""}. We are NOT connected yet. Lead with the shared ${p.school||"school"} connection, sound warm, specific and human, and make one low-friction ask (a quick chat about their path and how they recruited). No buzzwords.\n\nSENDER RESUME:\n${p.resume||"(not provided)"}`;
+  runAI(prompt,document.getElementById("recstat-"+i),document.getElementById("recout-"+i));}));
 }
 function renderInt(){
  const el=document.getElementById("tab-int");const p=PROFILE||store.profile;
