@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>NYC Networking & Internship Dashboard</title>
+<title>FootIn — Demo dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
-:root{color-scheme:dark;--bg:#0e1320;--bg2:#0a0f1a;--card:#161d2e;--card2:#1c2638;--line:#2a3550;--txt:#e7ebf3;--mut:#94a0b8;--accent:#5b9bf5;--accentd:#2f4a7d;
---greenbg:#2f5d3a;--green:#7bd88f;--yellowbg:#5a4f23;--yellow:#f0d262;--bluebg:#234063;--blue:#8fc1f5;--orangebg:#5e4126;--orange:#f3b07a;--redbg:#5e2b2b;--red:#f59a9a;--purplebg:#3d3357;--purple:#c3b3ef;--graybg:#2a3344;}
+:root{color-scheme:light;--bg:#f7f6f3;--bg2:#ffffff;--card:#ffffff;--card2:#f5f4f1;--line:#e9e7e2;--txt:#1b1b22;--mut:#6c6c77;--accent:#5d6ca8;--accentd:#45507e;
+--greenbg:#e9f0ea;--green:#4d7a5b;--yellowbg:#f3efe3;--yellow:#8a7a3f;--bluebg:#eceef5;--blue:#515f93;--orangebg:#f3ece4;--orange:#9a6b45;--redbg:#f6eae8;--red:#c0473f;--purplebg:#efecf4;--purple:#6a5d86;--graybg:#f0efeb;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.45}
-header{background:linear-gradient(135deg,#13203a,#0a0f1a);color:#fff;padding:20px 24px;border-bottom:1px solid var(--line)}
+header{background:#ffffff;color:var(--txt);padding:20px 24px;border-bottom:1px solid var(--line)}
 header h1{margin:0;font-size:20px}
 header p{margin:4px 0 0;color:var(--mut);font-size:13px}
 .wrap{max-width:1180px;margin:0 auto;padding:0 16px 70px}
@@ -39,7 +39,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent)}
 .note{margin-top:8px;background:var(--card2);border:1px dashed var(--line);border-radius:8px;padding:9px 10px;font-size:13px;display:none}
 .note.open{display:block}.note small{color:var(--mut)}
 .btn{border:1px solid var(--line);background:var(--card2);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;color:var(--accent);font-weight:600}
-.btn:hover{background:#243250}
+.btn:hover{background:#ececf1}
 select.status,input.txt{padding:5px 8px;border:1px solid var(--line);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:var(--card2);color:var(--txt)}
 input.txt{font-weight:400;cursor:text}
 .controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -51,7 +51,7 @@ table.map{width:100%;border-collapse:collapse;font-size:13px}
 table.map th,table.map td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
 table.map th{background:var(--accentd);color:#fff}
 .callout{background:var(--bluebg);border-left:4px solid var(--accent);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px}
-.bar{height:10px;border-radius:6px;background:#222c40;overflow:hidden;margin-top:6px}.bar>span{display:block;height:100%;background:var(--green)}
+.bar{height:10px;border-radius:6px;background:#e9e7e2;overflow:hidden;margin-top:6px}.bar>span{display:block;height:100%;background:var(--green)}
 .small{font-size:12px;color:var(--mut)}
 .chartbox{position:relative;height:240px}
 .tl{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
@@ -89,7 +89,7 @@ select.status{padding:6px 9px;border-radius:8px}
 </style>
 </head>
 <body>
-<header><h1>NYC Networking &amp; Internship Dashboard</h1><p>Sample Student &middot; Summer 2027 recruiting &middot; edits auto-save in this browser &middot; use Export to back up</p></header>
+<header><h1>FootIn <span style="font-weight:400;color:var(--mut);font-size:14px">· demo dashboard</span></h1><p>Sample Student &middot; Summer 2027 recruiting &middot; sample data for illustration only</p></header>
 <nav id="nav"></nav>
 <div class="wrap">
  <div class="tab active" id="tab-overview"></div>
@@ -174,7 +174,7 @@ function renderOverview(){
  const sc={};ap.forEach((a,i)=>{const s=curStatus(i);sc[s]=(sc[s]||0)+1;});
  window._charts.apps=new Chart(document.getElementById("cApps"),{type:"doughnut",data:{labels:Object.keys(sc),datasets:[{data:Object.values(sc),backgroundColor:PAL,borderColor:"#161d2e"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#cfd6e4",boxWidth:12,font:{size:11}}}}}});
  const ic={};tg.forEach(x=>ic[x.industry]=(ic[x.industry]||0)+1);
- window._charts.ind=new Chart(document.getElementById("cInd"),{type:"bar",data:{labels:Object.keys(ic),datasets:[{data:Object.values(ic),backgroundColor:PAL}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#9aa0b8",font:{size:10}}},y:{ticks:{color:"#9aa0b8"},grid:{color:"#222c40"}}}}});
+ window._charts.ind=new Chart(document.getElementById("cInd"),{type:"bar",data:{labels:Object.keys(ic),datasets:[{data:Object.values(ic),backgroundColor:PAL}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#6c6c77",font:{size:10}}},y:{ticks:{color:"#6c6c77"},grid:{color:"#e9e7e2"}}}}});
 }
 function expJSON(){const b=new Blob([JSON.stringify(store,null,2)],{type:"application/json"});dl(b,"networking-progress.json");}
 function expCSV(){let rows=[["Type","Name/Company","Detail","Status","Referral/Notes"]];

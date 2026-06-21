@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Networking Dashboard Builder</title>
+<title>FootIn — Build your pipeline</title>
 <style>
-:root{color-scheme:dark;--bg:#0e1320;--card:#161d2e;--card2:#1c2638;--line:#2a3550;--txt:#e7ebf3;--mut:#94a0b8;--accent:#5b9bf5;
---greenbg:#2f5d3a;--bluebg:#234063;--orangebg:#5e4126;--yellowbg:#5a4f23;--graybg:#2a3344;--redbg:#5e2b2b;--purplebg:#3d3357;}
+:root{color-scheme:light;--bg:#f7f6f3;--card:#ffffff;--card2:#f5f4f1;--line:#e9e7e2;--txt:#1b1b22;--mut:#6c6c77;--accent:#5d6ca8;
+--greenbg:#e9f0ea;--bluebg:#eceef5;--orangebg:#f3ece4;--yellowbg:#f3efe3;--graybg:#f0efeb;--redbg:#f6eae8;--purplebg:#efecf4;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:14.5px;line-height:1.5}
-header{background:linear-gradient(135deg,#13203a,#0a0f1a);padding:20px 24px;border-bottom:1px solid var(--line)}
+header{background:#ffffff;padding:20px 24px;border-bottom:1px solid var(--line)}
 header h1{margin:0;font-size:20px}header p{margin:4px 0 0;color:var(--mut);font-size:13px}
 .wrap{max-width:1000px;margin:0 auto;padding:22px 16px 70px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
@@ -19,9 +19,9 @@ label.fld input,label.fld textarea,label.fld select{display:block;width:100%;mar
 textarea{min-height:90px;resize:vertical}
 .chks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .chk{background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:13px;cursor:pointer;user-select:none}
-.chk.on{background:var(--bluebg);border-color:var(--accent);color:#fff}
+.chk.on{background:var(--bluebg);border-color:var(--accent);color:var(--accent)}
 .btn{border:1px solid var(--line);background:var(--card2);color:var(--accent);font-weight:600;border-radius:9px;padding:9px 16px;font-size:14px;cursor:pointer}
-.btn:hover{background:#243250}.btn.primary{background:var(--accent);color:#07101f;border-color:var(--accent)}
+.btn:hover{background:#ececf1}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.primary:hover{background:#4f5e9a}
 .row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:9px}
 .row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
 .row .nm{font-weight:700}.row .nm a{color:var(--accent);text-decoration:none}
@@ -45,7 +45,7 @@ a.dl{color:var(--accent)}
 </head>
 <body>
 <header>
-<h1>Networking Dashboard Builder <span class="small" style="font-weight:400">· prototype</span></h1>
+<h1>FootIn <span class="small" style="font-weight:400">· beta</span></h1>
 <p>Fill out your profile, upload your LinkedIn connections, and generate a personalized, ranked networking + internship dashboard.</p>
 </header>
 <div class="wrap">
@@ -78,7 +78,7 @@ a.dl{color:var(--accent)}
  </div>
 
  <button class="btn primary" id="buildBtn" style="font-size:15px;padding:11px 22px">Build my dashboard →</button>
- <div id="builderr" class="small" style="color:#f59a9a;margin-top:10px"></div>
+ <div id="builderr" class="small" style="color:#c0473f;margin-top:10px"></div>
 </div>
 
 <div id="app" class="hide">
@@ -123,7 +123,7 @@ function renderFieldChips(){const c=document.getElementById("f_fields");c.innerH
 renderFieldChips();
 
 let csvRows=[];
-function setCsvStat(){document.getElementById("csvstat").innerHTML=csvRows.length?`<span style="color:#7bd88f">Parsed <b>${csvRows.length}</b> connections.</span>`:"";}
+function setCsvStat(){document.getElementById("csvstat").innerHTML=csvRows.length?`<span style="color:#4d7a5b">Parsed <b>${csvRows.length}</b> connections.</span>`:"";}
 function parseCSV(text){
  const lines=text.split(/\r?\n/);
  let hi=lines.findIndex(l=>/first name/i.test(l)&&/last name/i.test(l)); if(hi<0)hi=0;
@@ -136,7 +136,7 @@ function parseCSV(text){
   rows.push({name,company:(f[iC]||"").trim(),position:(f[iP]||"").trim(),url:(f[iU]||"").trim()});}
  return rows;
 }
-document.getElementById("f_csv").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=ev=>{try{csvRows=parseCSV(ev.target.result);setCsvStat();}catch(err){document.getElementById("csvstat").innerHTML='<span style="color:#f59a9a">Could not parse that file.</span>';}};rd.readAsText(file);});
+document.getElementById("f_csv").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=ev=>{try{csvRows=parseCSV(ev.target.result);setCsvStat();}catch(err){document.getElementById("csvstat").innerHTML='<span style="color:#c0473f">Could not parse that file.</span>';}};rd.readAsText(file);});
 document.getElementById("f_csvtext").addEventListener("input",e=>{const t=e.target.value;if(t.trim().length>20){try{csvRows=parseCSV(t);setCsvStat();}catch(err){}}});
 
 // ---------- scoring ----------
@@ -218,7 +218,7 @@ const CSTATUS=["Not contacted","Request sent","Connected","Replied","Met / chatt
 function renderNet(){
  const el=document.getElementById("tab-net");
  const byTier={High:0,Medium:0,Low:0};RANKED.forEach(c=>byTier[c.tier]++);
- el.innerHTML=`<div class="cards"><div class="stat"><div class="n">${RANKED.length}</div><div class="l">Connections ranked</div></div><div class="stat"><div class="n" style="color:#7bd88f">${byTier.High}</div><div class="l">High value</div></div><div class="stat"><div class="n">${byTier.Medium}</div><div class="l">Medium</div></div><div class="stat"><div class="n">${byTier.Low}</div><div class="l">Low</div></div></div>
+ el.innerHTML=`<div class="cards"><div class="stat"><div class="n">${RANKED.length}</div><div class="l">Connections ranked</div></div><div class="stat"><div class="n" style="color:#4d7a5b">${byTier.High}</div><div class="l">High value</div></div><div class="stat"><div class="n">${byTier.Medium}</div><div class="l">Medium</div></div><div class="stat"><div class="n">${byTier.Low}</div><div class="l">Low</div></div></div>
   <div class="callout">Ranked by <b>title seniority × your target fields</b>, with interns &amp; peers weighted up (they reveal how they landed roles and let you ask for a referral). High = your warmest, ready-now assets.</div>
   <div style="margin-bottom:10px"><input id="netq" placeholder="Search name / company..." style="width:60%;min-width:200px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 11px"> <label class="small"><input type="checkbox" id="netlow"> show Low</label></div>
   <div id="netlist"></div>`;
