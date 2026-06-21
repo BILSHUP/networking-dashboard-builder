@@ -3,14 +3,14 @@ import "./globals.css";
 import RegisterSW from "./register-sw";
 
 export const metadata: Metadata = {
-  title: "Networking Dashboard Builder",
+  title: "FootIn — Get your foot in the door",
   description:
-    "Turn your LinkedIn network into a ranked recruiting dashboard — internship targets, AI-tailored outreach, and resume help. Built for students.",
+    "FootIn turns your LinkedIn network into a ranked pipeline of warm intros, AI outreach, and internship targets. The all-in-one career dashboard for business students.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Networking Builder",
+    statusBarStyle: "default",
+    title: "FootIn",
   },
   icons: {
     icon: [
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0e1320",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };

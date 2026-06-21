@@ -1,12 +1,12 @@
 {
-  "name": "Networking Dashboard Builder",
-  "short_name": "Networking",
-  "description": "Rank your LinkedIn network and draft AI outreach. Built for students.",
+  "name": "FootIn — Get your foot in the door",
+  "short_name": "FootIn",
+  "description": "Turn your LinkedIn network into a ranked pipeline of intros, AI outreach, and internship targets. Built for business students.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0e1320",
-  "theme_color": "#0e1320",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
     { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any maskable" },
