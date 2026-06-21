@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>FootIn — Build your pipeline</title>
 <style>
-:root{color-scheme:light;--bg:#f7f6f3;--card:#ffffff;--card2:#f5f4f1;--line:#e9e7e2;--txt:#1b1b22;--mut:#6c6c77;--accent:#5d6ca8;
---greenbg:#e9f0ea;--bluebg:#eceef5;--orangebg:#f3ece4;--yellowbg:#f3efe3;--graybg:#f0efeb;--redbg:#f6eae8;--purplebg:#efecf4;}
+:root{color-scheme:light;--bg:#f7f6f3;--card:#ffffff;--card2:#f5f4f1;--line:#e9e7e2;--txt:#1b1b22;--mut:#6c6c77;--accent:#4a72a8;
+--greenbg:#e9f0ea;--bluebg:#e7eef7;--orangebg:#f3ece4;--yellowbg:#f3efe3;--graybg:#f0efeb;--redbg:#f6eae8;--purplebg:#efecf4;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:14.5px;line-height:1.5}
 header{background:#ffffff;padding:20px 24px;border-bottom:1px solid var(--line)}
@@ -21,8 +21,19 @@ textarea{min-height:90px;resize:vertical}
 .chk{background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:13px;cursor:pointer;user-select:none}
 .chk.on{background:var(--bluebg);border-color:var(--accent);color:var(--accent)}
 .btn{border:1px solid var(--line);background:var(--card2);color:var(--accent);font-weight:600;border-radius:9px;padding:9px 16px;font-size:14px;cursor:pointer}
-.btn:hover{background:#ececf1}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.primary:hover{background:#4f5e9a}
+.btn:hover{background:#ececf1}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.primary:hover{background:#3c5d8a}
 .row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:9px}
+/* wizard / stepper */
+.wizard{max-width:620px;margin:0 auto}
+.wprogress{margin-bottom:22px}
+.wbar{height:6px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.wbar>span{display:block;height:100%;background:var(--accent);width:20%;transition:width .25s ease}
+.wlabel{font-size:12px;color:var(--mut);font-weight:600;margin-top:8px;text-align:right}
+.wstep{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 24px}
+.wq{margin:0 0 6px;font-size:22px;letter-spacing:-.02em}
+.wsub{margin:0 0 18px;color:var(--mut);font-size:14px;line-height:1.5}
+.wnav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+.wnav .btn{padding:11px 22px;font-size:15px}
 .row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
 .row .nm{font-weight:700}.row .nm a{color:var(--accent);text-decoration:none}
 .row .sub{color:var(--mut);font-size:13px;margin-top:2px}.row .why{font-size:12.5px;color:var(--mut);margin-top:6px}
@@ -46,39 +57,89 @@ a.dl{color:var(--accent)}
 <body>
 <header>
 <h1>FootIn <span class="small" style="font-weight:400">· beta</span></h1>
-<p>Fill out your profile, upload your LinkedIn connections, and generate a personalized, ranked networking + internship dashboard.</p>
+<p>Answer a few quick questions and FootIn builds your ranked networking dashboard.</p>
 </header>
 <div class="wrap">
 
 <div id="setup">
- <div class="banner"><b>Prototype.</b> Runs 100% in your browser — nothing is uploaded anywhere. A production version would add accounts, a live internship feed, and a saved database. LinkedIn data uses <b>your own export</b> (compliant), never scraping.</div>
+ <div class="wizard">
+  <div class="wprogress"><div class="wbar"><span id="wfill"></span></div><div class="wlabel" id="wlabel">Step 1 of 5</div></div>
 
- <div class="panel"><h3>1 · Your profile</h3>
-  <label class="fld">Full name<input id="f_name" placeholder="Jordan Lee"></label>
-  <label class="fld">LinkedIn URL<input id="f_url" placeholder="linkedin.com/in/..."></label>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-   <label class="fld" style="flex:1;min-width:200px">University<input id="f_school" placeholder="UNC Wilmington"></label>
-   <label class="fld" style="flex:1;min-width:140px">Graduation year<input id="f_year" placeholder="2029"></label>
+  <div class="wstep" data-step="1">
+   <h2 class="wq">Let's start with you</h2>
+   <p class="wsub">Just the basics, so FootIn can personalize everything that follows.</p>
+   <label class="fld">Full name<input id="f_name" placeholder="What should we call you?"></label>
+   <label class="fld">LinkedIn URL<input id="f_url" placeholder="linkedin.com/in/your-handle"></label>
   </div>
-  <label class="fld">Major(s)<input id="f_major" placeholder="Accounting & Finance"></label>
-  <label class="fld">Career goals (1-2 sentences)<textarea id="f_goals" placeholder="Land a 2027 internship in public accounting or wealth management; long term become a CPA."></textarea></label>
-  <label class="fld">Target fields (pick all that apply)</label>
-  <div class="chks" id="f_fields"></div>
-  <label class="fld" style="margin-top:12px">Dream / target companies (comma-separated, optional)<input id="f_companies" placeholder="CLA, Deloitte, Fidelity"></label>
-  <label class="fld">Location preference (optional)<input id="f_loc" placeholder="Charlotte, NYC, remote"></label>
-  <label class="fld">Paste your resume (plain text)<textarea id="f_resume" style="min-height:130px" placeholder="Paste your resume here — used by the AI tools to tailor messages and resumes."></textarea></label>
- </div>
 
- <div class="panel"><h3>2 · Your LinkedIn connections</h3>
-  <div class="small" style="margin-bottom:10px">Get your file the compliant way: LinkedIn → <b>Settings &amp; Privacy → Data Privacy → Get a copy of your data → Connections → Request archive</b>. It emails you a <b>Connections.csv</b> in a few minutes. Then upload or paste it below.</div>
-  <label class="fld">Upload Connections.csv<input type="file" id="f_csv" accept=".csv"></label>
-  <div class="small" style="margin:6px 0">…or paste the CSV contents:</div>
-  <textarea id="f_csvtext" placeholder="First Name,Last Name,URL,Email Address,Company,Position,Connected On&#10;..."></textarea>
-  <div id="csvstat" class="small" style="margin-top:8px"></div>
- </div>
+  <div class="wstep hide" data-step="2">
+   <h2 class="wq">Where do you study?</h2>
+   <p class="wsub">Helps FootIn spot alumni and weight your network correctly.</p>
+   <label class="fld">University<input id="f_school" placeholder="Start typing your school…" list="schoolList" autocomplete="off"></label>
+   <datalist id="schoolList">
+    <option>University of North Carolina Wilmington</option><option>University of North Carolina at Chapel Hill</option>
+    <option>North Carolina State University</option><option>Wake Forest University</option><option>Duke University</option>
+    <option>University of South Carolina</option><option>Clemson University</option><option>University of Georgia</option>
+    <option>University of Virginia</option><option>Pennsylvania State University</option><option>Indiana University</option>
+    <option>University of Michigan</option><option>University of Texas at Austin</option><option>New York University</option>
+    <option>Boston College</option><option>University of Florida</option><option>Ohio State University</option>
+   </datalist>
+   <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <label class="fld" style="flex:1;min-width:150px">Graduation year
+     <select id="f_year">
+      <option value="" selected disabled>Select year</option>
+      <option>2025</option><option>2026</option><option>2027</option><option>2028</option>
+      <option>2029</option><option>2030</option><option>2031</option><option value="Other">Other</option>
+     </select></label>
+    <label class="fld" style="flex:1;min-width:200px">Major
+     <select id="f_major">
+      <option value="" selected disabled>Select your major</option>
+      <option>Accounting</option><option>Finance</option><option>Economics</option>
+      <option>Business Administration / Management</option><option>Marketing</option>
+      <option>Information Systems / MIS</option><option>Supply Chain / Operations</option>
+      <option>Data Analytics</option><option>Computer Science</option><option value="Other">Other</option>
+     </select></label>
+   </div>
+  </div>
 
- <button class="btn primary" id="buildBtn" style="font-size:15px;padding:11px 22px">Build my dashboard →</button>
- <div id="builderr" class="small" style="color:#c0473f;margin-top:10px"></div>
+  <div class="wstep hide" data-step="3">
+   <h2 class="wq">What are you aiming for?</h2>
+   <p class="wsub">Pick the fields you're recruiting into—FootIn ranks your network around these.</p>
+   <label class="fld">Target fields (pick all that apply)</label>
+   <div class="chks" id="f_fields"></div>
+   <label class="fld" style="margin-top:16px">Location preference
+    <select id="f_loc">
+     <option value="" selected>No preference</option>
+     <option>New York, NY</option><option>Charlotte, NC</option><option>Chicago, IL</option>
+     <option>Atlanta, GA</option><option>Boston, MA</option><option>Dallas, TX</option>
+     <option>San Francisco, CA</option><option>Los Angeles, CA</option><option>Washington, DC</option>
+     <option>Remote</option><option>Open to anywhere</option><option value="Other">Other</option>
+    </select></label>
+   <label class="fld">Dream companies <span class="small">(optional)</span><input id="f_companies" placeholder="Companies you'd love to work at, separated by commas"></label>
+  </div>
+
+  <div class="wstep hide" data-step="4">
+   <h2 class="wq">Your goal &amp; résumé</h2>
+   <p class="wsub">The AI tools use these to tailor your outreach and résumé tips. A sentence is plenty.</p>
+   <label class="fld">What are you hoping to land?<textarea id="f_goals" placeholder="A short line about the role or path you're after"></textarea></label>
+   <label class="fld">Your résumé <span class="small">(plain text)</span><textarea id="f_resume" style="min-height:150px" placeholder="Paste your résumé text here"></textarea></label>
+  </div>
+
+  <div class="wstep hide" data-step="5">
+   <h2 class="wq">Add your LinkedIn connections</h2>
+   <p class="wsub">Get the file the compliant way: LinkedIn → <b>Settings &amp; Privacy → Data Privacy → Get a copy of your data → Connections → Request archive</b>. You'll get a <b>Connections.csv</b> by email. It's parsed right here in your browser—it never leaves your device.</p>
+   <label class="fld">Upload Connections.csv<input type="file" id="f_csv" accept=".csv"></label>
+   <div class="small" style="margin:8px 0 4px">…or paste the CSV contents:</div>
+   <textarea id="f_csvtext" placeholder="Paste the contents of your Connections.csv here"></textarea>
+   <div id="csvstat" class="small" style="margin-top:8px"></div>
+  </div>
+
+  <div class="wnav">
+   <button class="btn" id="wback" style="visibility:hidden">← Back</button>
+   <button class="btn primary" id="wnext">Continue →</button>
+  </div>
+  <div id="builderr" class="small" style="color:#c0473f;margin-top:12px;text-align:center"></div>
+ </div>
 </div>
 
 <div id="app" class="hide">
@@ -200,7 +261,7 @@ function build(){
  showApp();
 }
 function showApp(){document.getElementById("setup").classList.add("hide");document.getElementById("app").classList.remove("hide");renderAll();}
-function showSetup(){document.getElementById("app").classList.add("hide");document.getElementById("setup").classList.remove("hide");}
+function showSetup(){document.getElementById("app").classList.add("hide");document.getElementById("setup").classList.remove("hide");showStep(1);}
 
 // ---------- app tabs ----------
 const tierClass=t=>"tierColor-"+t;
@@ -275,8 +336,26 @@ async function runAI(prompt,statEl,outEl){
 }
 
 // ---------- init ----------
-document.getElementById("buildBtn").addEventListener("click",build);
+const TOTAL_STEPS=5; let curStep=1;
+function showStep(n){
+ curStep=Math.max(1,Math.min(TOTAL_STEPS,n));
+ document.querySelectorAll(".wstep").forEach(el=>el.classList.toggle("hide",(+el.dataset.step)!==curStep));
+ const f=document.getElementById("wfill"); if(f)f.style.width=(curStep/TOTAL_STEPS*100)+"%";
+ const l=document.getElementById("wlabel"); if(l)l.textContent="Step "+curStep+" of "+TOTAL_STEPS;
+ const b=document.getElementById("wback"); if(b)b.style.visibility=curStep===1?"hidden":"visible";
+ const nx=document.getElementById("wnext"); if(nx)nx.textContent=curStep===TOTAL_STEPS?"Build my dashboard →":"Continue →";
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function nextStep(){
+ const err=document.getElementById("builderr"); err.textContent="";
+ if(curStep===1&&!document.getElementById("f_name").value.trim()){err.textContent="Please add your name to continue.";return;}
+ if(curStep===TOTAL_STEPS){build();return;}
+ showStep(curStep+1);
+}
+document.getElementById("wnext").addEventListener("click",nextStep);
+document.getElementById("wback").addEventListener("click",()=>showStep(curStep-1));
 document.getElementById("editBtn").addEventListener("click",showSetup);
+showStep(1);
 if(store.profile){ fillProfile(store.profile); if(store.ranked&&store.ranked.length){RANKED=store.ranked.slice();PROFILE=store.profile;showApp();} }
 </script>
 </body>

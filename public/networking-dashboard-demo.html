@@ -6,8 +6,8 @@
 <title>FootIn — Demo dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
-:root{color-scheme:light;--bg:#f7f6f3;--bg2:#ffffff;--card:#ffffff;--card2:#f5f4f1;--line:#e9e7e2;--txt:#1b1b22;--mut:#6c6c77;--accent:#5d6ca8;--accentd:#45507e;
---greenbg:#e9f0ea;--green:#4d7a5b;--yellowbg:#f3efe3;--yellow:#8a7a3f;--bluebg:#eceef5;--blue:#515f93;--orangebg:#f3ece4;--orange:#9a6b45;--redbg:#f6eae8;--red:#c0473f;--purplebg:#efecf4;--purple:#6a5d86;--graybg:#f0efeb;}
+:root{color-scheme:light;--bg:#f7f6f3;--bg2:#ffffff;--card:#ffffff;--card2:#f5f4f1;--line:#e9e7e2;--txt:#1b1b22;--mut:#6c6c77;--accent:#4a72a8;--accentd:#3c5d8a;
+--greenbg:#e9f0ea;--green:#4d7a5b;--yellowbg:#f3efe3;--yellow:#8a7a3f;--bluebg:#e7eef7;--blue:#3c5d8a;--orangebg:#f3ece4;--orange:#9a6b45;--redbg:#f6eae8;--red:#c0473f;--purplebg:#efecf4;--purple:#6a5d86;--graybg:#f0efeb;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.45}
 header{background:#ffffff;color:var(--txt);padding:20px 24px;border-bottom:1px solid var(--line)}
@@ -86,6 +86,18 @@ nav{box-shadow:0 1px 0 var(--line)}
 select.status{padding:6px 9px;border-radius:8px}
 .tl .t{border-radius:12px;padding:12px 14px}
 .grid2{gap:18px}
+/* ---- declutter: calmer density, more breathing room ---- */
+.wrap{max-width:960px}
+.cards{grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:16px;margin-bottom:28px}
+.stat{padding:18px 18px}
+.panel{padding:22px 24px;margin-bottom:24px}
+.grid2{gap:24px}
+.row{padding:15px 17px;margin-bottom:12px}
+.tab{padding-top:28px}
+nav button{padding:14px 18px}
+.ind{margin:28px 0 10px}
+.toolbar{margin-bottom:18px}
+.filters{margin-bottom:20px}
 </style>
 </head>
 <body>
