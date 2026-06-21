@@ -172,7 +172,7 @@ function renderOverview(){
  document.getElementById("tab-overview").innerHTML=h;
  // build charts
  const sc={};ap.forEach((a,i)=>{const s=curStatus(i);sc[s]=(sc[s]||0)+1;});
- window._charts.apps=new Chart(document.getElementById("cApps"),{type:"doughnut",data:{labels:Object.keys(sc),datasets:[{data:Object.values(sc),backgroundColor:PAL,borderColor:"#161d2e"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#cfd6e4",boxWidth:12,font:{size:11}}}}}});
+ window._charts.apps=new Chart(document.getElementById("cApps"),{type:"doughnut",data:{labels:Object.keys(sc),datasets:[{data:Object.values(sc),backgroundColor:PAL,borderColor:"#ffffff"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#1b1b22",boxWidth:12,font:{size:11}}}}}});
  const ic={};tg.forEach(x=>ic[x.industry]=(ic[x.industry]||0)+1);
  window._charts.ind=new Chart(document.getElementById("cInd"),{type:"bar",data:{labels:Object.keys(ic),datasets:[{data:Object.values(ic),backgroundColor:PAL}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#6c6c77",font:{size:10}}},y:{ticks:{color:"#6c6c77"},grid:{color:"#e9e7e2"}}}}});
 }
