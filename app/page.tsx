@@ -15,6 +15,7 @@ export default function Home() {
           </a>
           <nav className="nav-links">
             <a className="hide-sm" href="#how">How it works</a>
+            <a className="hide-sm" href="#pipeline">Pipeline</a>
             <a className="hide-sm" href="#features">Features</a>
             <a className="hide-sm" href="#faq">FAQ</a>
             <a className="btn btn-primary" href={APP_URL}>Launch app</a>
@@ -54,7 +55,7 @@ export default function Home() {
               <div className="body">
                 <div className="stat-row">
                   <div className="stat"><div className="n">512</div><div className="l">Connections ranked</div></div>
-                  <div className="stat"><div className="n" style={{ color: "#1c8a4e" }}>47</div><div className="l">High-value</div></div>
+                  <div className="stat"><div className="n" style={{ color: "#4d7a5b" }}>47</div><div className="l">High-value</div></div>
                   <div className="stat"><div className="n">128</div><div className="l">In your fields</div></div>
                   <div className="stat"><div className="n">9</div><div className="l">Intros sent</div></div>
                 </div>
@@ -90,6 +91,44 @@ export default function Home() {
                 <p>Generate tailored intros and résumé tweaks with AI, then track every conversation from first message to offer.</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* PIPELINE — recommended warm connections */}
+        <section id="pipeline" className="tinted">
+          <div className="container">
+            <div className="center">
+              <div className="eyebrow">The pipeline</div>
+              <h2 className="h2">Your warmest intros—found for you.</h2>
+              <p className="lead">
+                FootIn surfaces the people who already share your world—same university, business
+                fraternity, or club—who now work where you want to. For each, you get exactly why
+                you&apos;re connected, that they could refer you, and a ready-to-send opening note.
+              </p>
+            </div>
+            <div className="reco-list">
+              <Reco
+                name="Maya Chen"
+                role="Senior Associate, Audit · Deloitte"
+                affs={["UNCW Alumni '22", "Beta Alpha Psi", "Accounting Society"]}
+                note="Hi Maya — I'm a junior at UNCW and a Beta Alpha Psi member too, recruiting for audit. I saw you landed at Deloitte and would love 15 minutes to hear how you approached recruiting. Any advice would mean a lot — thank you!"
+              />
+              <Reco
+                name="Jordan Ellis"
+                role="Investment Banking Analyst · Truist"
+                affs={["Same university", "Finance Club", "Class of '23"]}
+                note="Hi Jordan — fellow Finance Club member here, currently exploring IB for Summer 2027. I'd really value 15 minutes to hear how your recruiting went and any tips you'd share with someone a couple years behind you. Thanks for considering!"
+              />
+              <Reco
+                name="Priya Nair"
+                role="Consultant · Bain & Company"
+                affs={["Honors College", "Case Club", "Mentorship program"]}
+                note="Hi Priya — we overlapped in the Case Club at school and I'm now recruiting for consulting. Bain is a dream firm of mine — could I ask you a few questions about your path and what stood out in your applications? Really appreciate it."
+              />
+            </div>
+            <p className="lead center" style={{ marginTop: 28, fontSize: 15 }}>
+              Every recommendation comes with a one-click opening note—personalized from your profile, ready to paste the moment you connect.
+            </p>
           </div>
         </section>
 
@@ -130,7 +169,7 @@ export default function Home() {
         <section>
           <div className="container">
             <div className="band">
-              <div className="eyebrow" style={{ color: "#c9b8ff" }}>Made for business school</div>
+              <div className="eyebrow">Made for business school</div>
               <h2 className="h2">Built for business college students.</h2>
               <p className="lead">
                 Recruiting for finance, accounting, consulting, and tech moves fast and runs on
@@ -231,6 +270,35 @@ function Conn({ name, role, tier }: { name: string; role: string; tier: "High" |
   );
 }
 
+function Reco({ name, role, affs, note }: { name: string; role: string; affs: string[]; note: string }) {
+  return (
+    <div className="reco">
+      <div className="top">
+        <div className="who">
+          <div className="av" />
+          <div>
+            <div className="nm">{name}</div>
+            <div className="rl">{role}</div>
+          </div>
+        </div>
+        <span className="referral">Can refer you ↑</span>
+      </div>
+      <div className="affs">
+        {affs.map((a) => (
+          <span className="aff" key={a}>{a}</span>
+        ))}
+      </div>
+      <div className="note">
+        <div className="lbl">
+          <span>Opening note</span>
+          <span className="copy">Copy ⧉</span>
+        </div>
+        <div className="msg">{note}</div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- inline icons (currentColor / white) ---------- */
 function FootMark() {
   return (
@@ -245,7 +313,7 @@ function FootMark() {
 }
 function IconPipeline() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <circle cx="5" cy="6" r="2.4" /><circle cx="5" cy="18" r="2.4" /><circle cx="19" cy="12" r="2.4" />
       <path d="M7.4 6H13l3.8 5M7.4 18H13l3.8-5" />
     </svg>
@@ -253,7 +321,7 @@ function IconPipeline() {
 }
 function IconSpark() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2L12 2z" />
       <circle cx="19" cy="4" r="1.6" />
     </svg>
@@ -261,16 +329,16 @@ function IconSpark() {
 }
 function IconTarget() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" aria-hidden>
-      <circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.4" fill="#fff" />
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.4" fill="currentColor" />
     </svg>
   );
 }
 function IconRadar() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M19.07 4.93a10 10 0 1 0 1.4 12.6" /><path d="M15.5 8.5a5 5 0 1 0 1.2 5.2" />
-      <path d="M12 12L20 4" /><circle cx="12" cy="12" r="1.3" fill="#fff" />
+      <path d="M12 12L20 4" /><circle cx="12" cy="12" r="1.3" fill="currentColor" />
     </svg>
   );
 }
