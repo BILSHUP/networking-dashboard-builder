@@ -176,9 +176,19 @@ const FIELDS={
 "Data & Analytics":{firms:[],rel:["data","analytics","analyst","business intelligence","sql","python","statistics"]},
 "Operations / Supply Chain":{firms:[],rel:["operations","supply chain","logistics","procurement","process"]},
 };
-const SENIOR=["managing principal","principal","partner","managing director","vice president","associate vice president","senior manager","sr. manager","director","chief","head of","executive"," vp ","avp"];
-const MID=["manager","senior associate","senior analyst","lead ","advisor"];
-const EARLY=["associate","analyst","staff","coordinator","specialist","accountant","auditor","consultant"];
+// One mutually-exclusive title classifier (most specific first). Fixes the old bug
+// where CEO/CFO/President/Founder scored zero seniority and recent-grads were invisible.
+function classifyTitle(t){
+ t=" "+(t||"").toLowerCase()+" ";
+ const has=a=>a.some(x=>t.includes(x));
+ const vp=has(["vice president"," vp ","vp,","evp","svp","avp"]);
+ if(!vp&&has(["chief"," ceo "," cfo "," coo "," cto "," cio ","president","founder","co-founder","owner","managing director","managing partner"," partner ","head of"," executive"]))return "exec";
+ if(vp||has(["director","principal"]))return "senior";
+ if(has(["senior manager","sr. manager","senior associate","senior analyst"," manager ","team lead","lead ","advisor"]))return "mid";
+ if(has(["intern","new grad","new-grad","rotational","rotation","development program","first year","first-year","campus","early career","early-career","apprentice","trainee","analyst","accountant","auditor","coordinator","specialist"]))return "recent";
+ if(has([" associate "," consultant ","staff"]))return "mid";
+ return "unknown";
+}
 
 // ---------- setup wiring ----------
 let chosenFields=[];
@@ -220,21 +230,22 @@ function scoreConn(position,company,banks){
  const o=" "+(position+" "+company).toLowerCase()+" ";
  const firm=banks.firms.find(f=>f&&o.includes(f))||"";
  const rel=banks.rel.some(t=>o.includes(t));
- const senior=SENIOR.some(t=>o.includes(t)),mid=MID.some(t=>o.includes(t)),early=EARLY.some(t=>o.includes(t));
- const intern=o.includes("intern");
- let sc=0; if(firm)sc+=4; if(rel)sc+=2; if(senior)sc+=4;else if(mid)sc+=2;else if(early)sc+=1; if(intern)sc+=2; if(intern&&firm)sc+=1;
- const tier=sc>=8?"High":sc>=4?"Medium":"Low";
- let why;
+ const band=classifyTitle(position);
+ let sc=0; if(firm)sc+=4; if(rel)sc+=2; sc+=({exec:2,senior:2,mid:2,recent:2,unknown:1})[band];
+ // reachability: a recent grad AT a target firm is the single best person to message first
+ if(band==="recent"&&firm)sc+=4; else if((band==="exec"||band==="senior")&&firm)sc+=1;
+ const sc10=Math.max(1,Math.round(sc/12*10)); // normalize to 0-10 so tiers stay meaningful
+ const tier=sc10>=8?"High":sc10>=5?"Medium":"Low";
  const fdisp=firm?firm.replace(/\b\w/g,m=>m.toUpperCase()):"";
- if(firm&&senior)why=`Senior at a target company (${fdisp}) — strong referral weight + advice.`;
- else if(firm&&intern)why=`Interned/working at a target company (${fdisp}) — ask exactly how they got in; a "referred by" bridge.`;
- else if(firm)why=`At a target company (${fdisp}) — referral path + day-to-day intel.`;
- else if(intern&&rel)why=`Intern in a relevant role — ask how they landed it; intel + possible referral.`;
- else if(intern)why=`Interning somewhere — can share how they got it; good leads + practice.`;
- else if(rel&&senior)why=`Senior person in your field — advice and possible referral.`;
+ let why;
+ if(band==="recent"&&firm)why=`Recent grad / early-career at ${fdisp} — message this person first: closest to your level, most likely to reply, and a real referral path.`;
+ else if((band==="exec"||band==="senior")&&firm)why=`Senior contact at ${fdisp} — high referral weight; ask for advice or a quick intro.`;
+ else if(firm)why=`At ${fdisp} (a target company) — a referral path plus day-to-day intel.`;
+ else if(band==="recent"&&rel)why=`Early-career in a relevant field — ask how they broke in; intel + a possible referral.`;
+ else if((band==="exec"||band==="senior")&&rel)why=`Senior person in your field — worth a direct ask for advice or an intro.`;
  else if(rel)why=`Relevant-field background — compare notes; possible leads.`;
  else why=`Connection — keep warm; networks compound.`;
- return {sc,tier,why};
+ return {sc,sc10,tier,band,why};
 }
 
 // ---------- build ----------
@@ -258,16 +269,23 @@ let RANKED=[],PROFILE=null;
 function build(){
  const p=readProfile();
  const err=document.getElementById("builderr");
- if(!p.name){err.textContent="Add your name.";return;} if(!csvRows.length){err.textContent="Upload or paste your LinkedIn Connections.csv first.";return;}
+ if(!p.name){err.textContent="Add your name (Step 1).";return;}
+ if(!p.year){err.textContent="Pick your graduation year (Step 2) — it tailors your internships.";return;}
+ if(!p.fields.length){err.textContent="Pick at least one target field (Step 3) so we can rank your network.";return;}
+ if(!csvRows.length){err.textContent="Upload or paste your LinkedIn Connections.csv first (Step 5).";return;}
  err.textContent="";
+ // dedup (LinkedIn exports repeat rows) by profile URL, else name+company
+ const seen=new Set();
+ const rows=csvRows.filter(c=>{const k=((c.url||"").trim().toLowerCase())||((c.name+"|"+c.company).toLowerCase().trim());if(seen.has(k))return false;seen.add(k);return true;});
+ const dupes=csvRows.length-rows.length;
  const banks=buildBanks(p.fields,p.companies);
- RANKED=csvRows.map(c=>{const s=scoreConn(c.position,c.company,banks);return {...c,...s};});
+ RANKED=rows.map(c=>{const s=scoreConn(c.position,c.company,banks);return {...c,...s};});
  const ord={High:0,Medium:1,Low:2};
  RANKED.sort((a,b)=>ord[a.tier]-ord[b.tier]||b.sc-a.sc||a.name.localeCompare(b.name));
  RANKED.forEach((c,i)=>c.rank=i+1);
- PROFILE=p; store.profile=p; store.csvCount=csvRows.length; save();
+ PROFILE=p; store.profile=p; store.csvCount=rows.length; store.dupes=dupes; save();
  // persist a compact ranked snapshot so reload restores
- store.ranked=RANKED.map(c=>({name:c.name,company:c.company,position:c.position,url:c.url,tier:c.tier,why:c.why,rank:c.rank}));save();
+ store.ranked=RANKED.map(c=>({name:c.name,company:c.company,position:c.position,url:c.url,tier:c.tier,sc10:c.sc10,band:c.band,why:c.why,rank:c.rank}));save();
  showApp();
 }
 function showApp(){document.getElementById("setup").classList.add("hide");document.getElementById("app").classList.remove("hide");renderAll();}
@@ -290,7 +308,7 @@ function renderNet(){
  const el=document.getElementById("tab-net");
  const byTier={High:0,Medium:0,Low:0};RANKED.forEach(c=>byTier[c.tier]++);
  el.innerHTML=`<div class="cards"><div class="stat"><div class="n">${RANKED.length}</div><div class="l">Connections ranked</div></div><div class="stat"><div class="n" style="color:#4d7a5b">${byTier.High}</div><div class="l">High value</div></div><div class="stat"><div class="n">${byTier.Medium}</div><div class="l">Medium</div></div><div class="stat"><div class="n">${byTier.Low}</div><div class="l">Low</div></div></div>
-  <div class="callout">Ranked by <b>title seniority × your target fields</b>, with interns &amp; peers weighted up (they reveal how they landed roles and let you ask for a referral). High = your warmest, ready-now assets.</div>
+  <div class="callout">Ranked by <b>who can actually help you</b> — contacts at your target companies, with <b>recent grads &amp; early-career</b> people weighted up (closest to your level and the most likely to reply), then warm senior contacts. Each shows a <b>match score /10</b>. High = your warmest, ready-now assets.</div>
   <div style="margin-bottom:10px"><input id="netq" placeholder="Search name / company..." style="width:60%;min-width:200px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 11px"> <label class="small"><input type="checkbox" id="netlow"> show Low</label></div>
   <div id="netlist"></div>`;
  const draw=()=>{const q=(document.getElementById("netq").value||"").toLowerCase();const showLow=document.getElementById("netlow").checked;
@@ -298,7 +316,7 @@ function renderNet(){
   const list=document.getElementById("netlist");
   list.innerHTML=`<div class="small" style="margin-bottom:8px">Showing ${rows.length} of ${RANKED.length}</div>`+rows.slice(0,400).map(c=>{const i=c.rank-1;const st=cStat(i);
    const link=c.url?`<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}</a>`:esc(c.name);
-   return `<div class="row"><div class="top"><div><div class="nm">#${c.rank} · ${link} <span class="chip ${tierClass(c.tier)}">${esc(c.tier)}</span></div><div class="sub">${esc(c.position||"")}${c.company?" · "+esc(c.company):""}</div><div class="why">${esc(c.why)}</div></div><div><select class="status" data-i="${i}">${CSTATUS.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join("")}</select></div></div></div>`;}).join("")+(rows.length>400?'<div class="small">Showing first 400 — search to narrow.</div>':"");
+   return `<div class="row"><div class="top"><div><div class="nm">#${c.rank} · ${link} <span class="chip ${tierClass(c.tier)}">${esc(c.tier)}</span>${c.band==="recent"?` <span class="chip" style="background:var(--bluebg);color:var(--accent)">Recent grad · message first</span>`:""}</div><div class="sub">${esc(c.position||"")}${c.company?" · "+esc(c.company):""}${c.sc10?` · <span style="color:var(--accent);font-weight:600">match ${c.sc10}/10</span>`:""}</div><div class="why">${esc(c.why)}</div></div><div><select class="status" data-i="${i}">${CSTATUS.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join("")}</select></div></div></div>`;}).join("")+(rows.length>400?'<div class="small">Showing first 400 — search to narrow.</div>':"");
   list.querySelectorAll("select.status").forEach(s=>s.addEventListener("change",e=>{store.status[e.target.dataset.i]=e.target.value;save();}));};
  document.getElementById("netq").addEventListener("input",draw);document.getElementById("netlow").addEventListener("change",draw);draw();
 }
@@ -354,10 +372,10 @@ function scoreCand(c,p,loc){
  let sc=5; // shared school (always) + relevant field
  if(c.target)sc+=4;
  const locMatch=!!(loc&&c.location===loc); if(locMatch)sc+=2;
- const t=(c.title||"").toLowerCase();
- if(SENIOR.some(x=>t.includes(x.trim())))sc+=3;else if(MID.some(x=>t.includes(x.trim())))sc+=2;else sc+=1;
- const why=`${c.title} at ${c.company}${c.location?(" in "+c.location):""} and a ${p.school||"fellow"} alum you're not connected to yet.${c.target?(" "+c.company+" is on your target list."):""} A natural warm intro for your ${c.field} search${locMatch?(" in "+c.location):""} — open with the shared ${p.school||"school"} tie and ask about their path or a referral.`;
- return {sc,why,locMatch};
+ const band=classifyTitle(c.title);
+ sc+= band==="recent"?4 : (band==="unknown"?2:3); // recent grad alum = best first reply
+ const why=`${c.title} at ${c.company}${c.location?(" in "+c.location):""} and a ${p.school||"fellow"} alum you're not connected to yet.${c.target?(" "+c.company+" is on your target list."):""}${band==="recent"?" They're early-career — closest to your level and the most likely to reply.":" Worth a direct ask for advice or an intro."} Open with the shared ${p.school||"school"} tie for your ${c.field} search${locMatch?(" in "+c.location):""}.`;
+ return {sc,why,locMatch,band};
 }
 async function renderRec(){
  const el=document.getElementById("tab-rec");const p=PROFILE||store.profile;
@@ -372,7 +390,7 @@ async function renderRec(){
  if(!cands.length){list.innerHTML=`<div class="callout">Add target fields and a few dream companies in your profile, then come back—FootIn will surface alumni at those companies you should reach out to.</div>`;return;}
  list.classList.remove("small");
  list.innerHTML=`<div class="small" style="margin-bottom:10px">${cands.length} people you're not connected to yet, ranked by how much they overlap with your goals.</div>`+cands.map((c,i)=>{
-  const chips=[`🎓 ${esc(p.school||"Same school")} alum`,`🎯 ${esc(c.field)}`].concat(c.target?["🏢 Target company"]:[]).concat(c._s.locMatch?[`📍 ${esc(c.location)}`]:[]);
+  const chips=[`🎓 ${esc(p.school||"Same school")} alum`,`🎯 ${esc(c.field)}`].concat(c.target?["🏢 Target company"]:[]).concat(c._s.locMatch?[`📍 ${esc(c.location)}`]:[]).concat(c._s.band==="recent"?["⚡ Recent grad · best first reply"]:[]);
   const ln=`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(c.name+" "+c.company)}`;
   return `<div class="row"><div class="top"><div style="min-width:0"><div class="nm">${esc(c.name)} <a href="${ln}" target="_blank" rel="noopener" class="small" style="font-weight:600">Find on LinkedIn ↗</a></div><div class="sub">${esc(c.title)} · ${esc(c.company)}${c.location?(" · "+esc(c.location)):""}</div><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${chips.map(x=>`<span class="chip" style="background:var(--bluebg);color:var(--accent)">${x}</span>`).join("")}</div><div class="why" style="margin-top:8px"><b>Why reach out:</b> ${esc(c._s.why)}</div></div></div><div style="margin-top:10px"><button class="btn primary" data-rec="${i}">✍ Write intro note</button> <span class="small" id="recstat-${i}"></span><div id="recout-${i}" style="margin-top:8px"></div></div></div>`;
  }).join("");
@@ -380,12 +398,38 @@ async function renderRec(){
   const prompt=`Write a LinkedIn connection note under 280 characters from ${p.name||"a student"}, a ${(p.major||"")} student at ${p.school||"my university"}${p.year?(" (class of "+p.year+")"):""}, to ${c.name}, ${c.title} at ${c.company}${c.location?(" in "+c.location):""}. We are NOT connected yet. Lead with the shared ${p.school||"school"} connection, sound warm, specific and human, and make one low-friction ask (a quick chat about their path and how they recruited). No buzzwords.\n\nSENDER RESUME:\n${p.resume||"(not provided)"}`;
   runAI(prompt,document.getElementById("recstat-"+i),document.getElementById("recout-"+i));}));
 }
+// Curated, web-verified early-career programs open to current underclassmen (e.g. a 2029 graduate).
+// Freshman/sophomore early-ID, diversity, and insight programs only — nothing requiring an earlier grad year.
+const INTERNSHIPS_2029=[
+ {industry:"Investment Banking & Markets",company:"Goldman Sachs",program:"Possibilities Summits (Freshman early-ID)",fit:"Freshmen",window:"Apply late summer–fall; summits run fall/winter",applyUrl:"https://www.goldmansachs.com/careers/students/",priority:"HIGH"},
+ {industry:"Investment Banking & Markets",company:"Goldman Sachs",program:"Emerging Leaders Series (Sophomore)",fit:"Sophomores",window:"Apply late summer–fall of sophomore year",applyUrl:"https://www.goldmansachs.com/careers/students/",priority:"HIGH"},
+ {industry:"Investment Banking & Markets",company:"J.P. Morgan",program:"Winning Women — Early Insights",fit:"Freshman/Sophomore women exploring finance",window:"Applications generally open in fall",applyUrl:"https://careers.jpmorgan.com/us/en/students/programs",priority:"MEDIUM"},
+ {industry:"Investment Banking & Markets",company:"Bank of America",program:"Freshman/Sophomore Insight Programs",fit:"First-year / early sophomore",window:"Summer & insight apps open ~Sep 1, 2026",applyUrl:"https://careers.bankofamerica.com/en-us/students",priority:"MEDIUM"},
+ {industry:"Investment Banking & Markets",company:"Citi",program:"Freshman Discovery / Early-ID",fit:"Freshmen (grad Fall 2028–Spring 2029)",window:"Varies by track; generally fall/winter",applyUrl:"https://jobs.citi.com/early-careers",priority:"MEDIUM"},
+ {industry:"Management Consulting",company:"McKinsey & Company",program:"Sophomore Summer Business Analyst (SSBA)",fit:"Sophomores",window:"Apply ~May–Oct of sophomore year",applyUrl:"https://www.mckinsey.com/careers/students",priority:"HIGH"},
+ {industry:"Management Consulting",company:"McKinsey & Company",program:"Up Next — First-Year Leadership Summit",fit:"Freshmen (underrepresented backgrounds)",window:"Apply fall of freshman year",applyUrl:"https://www.mckinsey.com/careers/students",priority:"MEDIUM"},
+ {industry:"Management Consulting",company:"Boston Consulting Group",program:"Growing Future Leaders (GFL)",fit:"Sophomores",window:"Apply fall of the academic year",applyUrl:"https://careers.bcg.com/early-careers",priority:"HIGH"},
+ {industry:"Management Consulting",company:"Bain & Company",program:"Building Entrepreneurial Leaders (BEL)",fit:"Freshman/Sophomore (diversity program)",window:"Apply fall/winter",applyUrl:"https://www.bain.com/careers/roles/campus/",priority:"MEDIUM"},
+ {industry:"Public Accounting (Big 4)",company:"Deloitte",program:"Discovery Internship",fit:"Freshmen/Sophomores",window:"Portal opens ~Aug 2026; priority ~mid-Sep",applyUrl:"https://www.deloitte.com/us/en/careers/students.html",priority:"HIGH"},
+ {industry:"Public Accounting (Big 4)",company:"EY",program:"Expedition EY",fit:"First/second-year (2+ years from grad)",window:"Runs Mar–May; apply winter/spring",applyUrl:"https://www.ey.com/en_us/careers/students",priority:"HIGH"},
+ {industry:"Public Accounting (Big 4)",company:"KPMG",program:"RISE Leadership",fit:"Freshmen/Sophomores (accounting/finance/tech)",window:"Apply fall/winter",applyUrl:"https://www.kpmguscareers.com/",priority:"MEDIUM"},
+ {industry:"Public Accounting (Big 4)",company:"PwC",program:"Career Preview / Start (early-ID)",fit:"Freshmen/Sophomores",window:"Apply fall/winter",applyUrl:"https://www.pwc.com/us/en/careers/entry-level.html",priority:"HIGH"},
+ {industry:"Quant & Trading",company:"Jane Street",program:"JSIP — Immersion Program",fit:"First/second-year underclassmen",window:"Apply winter for summer",applyUrl:"https://www.janestreet.com/join-jane-street/programs/",priority:"MEDIUM"},
+ {industry:"Quant & Trading",company:"Citadel / Citadel Securities",program:"Discover Citadel",fit:"First/second-year (Dec 2027–Jun 2029 grads)",window:"Apply winter/spring",applyUrl:"https://www.citadel.com/careers/students/",priority:"MEDIUM"},
+ {industry:"Tech",company:"Google",program:"STEP Internship",fit:"Freshmen/Sophomores in CS",window:"Apply fall/winter for summer",applyUrl:"https://buildyourfuture.withgoogle.com/programs/step",priority:"MEDIUM"},
+];
 function renderInt(){
  const el=document.getElementById("tab-int");const p=PROFILE||store.profile;
- el.innerHTML=`<div class="callout">In production this pulls from a live internship feed filtered to your school, major, and timeline. In this prototype, generate suggestions with AI from your profile.</div>
-  <button class="btn primary" id="intgo">Suggest internships for me (AI)</button> <span id="intstat" class="small"></span><div id="intout" style="margin-top:14px"></div>`;
+ const yr=p.year||"your";
+ const groups={};INTERNSHIPS_2029.forEach(t=>{(groups[t.industry]=groups[t.industry]||[]).push(t);});
+ let cards="";Object.keys(groups).forEach(g=>{
+  cards+=`<div class="small" style="font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px">${esc(g)}</div>`;
+  cards+=groups[g].map(t=>`<div class="row"><div class="top"><div><div class="nm">${esc(t.company)} — ${esc(t.program)} <span class="chip" style="background:${t.priority==="HIGH"?"var(--greenbg)":"var(--bluebg)"};color:${t.priority==="HIGH"?"#4d7a5b":"var(--accent)"}">${t.priority==="HIGH"?"Top pick":"Strong"}</span></div><div class="sub">${esc(t.fit)}</div><div class="why"><b>Apply window:</b> ${esc(t.window)}</div></div><div><a class="btn" href="${esc(t.applyUrl)}" target="_blank" rel="noopener">Apply ↗</a></div></div></div>`).join("");
+ });
+ el.innerHTML=`<div class="callout"><b>Top early-career &amp; insight programs open to a Class-of-${esc(yr)} graduate.</b> Real freshman/sophomore early-ID, diversity, and insight programs — the right lane for an underclassman. Anything requiring an earlier graduation year is excluded. Always confirm the current cycle's dates on each firm's site.</div>${cards}
+  <div style="margin-top:18px"><button class="btn primary" id="intgo">Suggest more with AI</button> <span id="intstat" class="small"></span><div id="intout" style="margin-top:14px"></div></div>`;
  document.getElementById("intgo").addEventListener("click",()=>{
-  const prompt=`Suggest 12 realistic internship programs for this student, grouped by fit (Strong fit / Reach). For each: company, program name, why it fits, and the application window if known. Be honest about fit and flag CS-only programs if the student is not technical.\n\nSTUDENT: name ${p.name}; school ${p.school}; class of ${p.year}; major ${p.major}; target fields: ${(p.fields||[]).join(", ")}; dream companies: ${(p.companies||[]).join(", ")}; location: ${p.loc}; goals: ${p.goals}`;
+  const prompt=`Suggest 8 ADDITIONAL real internship or early-career programs open to a student graduating in ${p.year||"the user's year"} (currently an underclassman). ONLY include programs whose eligibility is open to that graduation year — exclude anything that requires an earlier graduation year. Prefer freshman/sophomore early-identification, diversity, and insight programs. For each: company, program name, who it's for, why it fits, and the application window. Do NOT repeat these already-listed programs: ${INTERNSHIPS_2029.map(t=>t.company+" "+t.program).join("; ")}.\n\nSTUDENT: school ${p.school}; class of ${p.year}; majors ${p.major}; target fields ${(p.fields||[]).join(", ")}; dream companies ${(p.companies||[]).join(", ")}; location ${p.loc}.`;
   runAI(prompt,document.getElementById("intstat"),document.getElementById("intout"));});
 }
 function renderAI(){
