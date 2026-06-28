@@ -100,8 +100,15 @@ a.dl{color:var(--accent)}
      <option>2025</option><option>2026</option><option>2027</option><option>2028</option>
      <option>2029</option><option>2030</option><option>2031</option><option value="Other">Other</option>
     </select></label>
-   <label class="fld" style="margin-top:6px">Major(s) — pick all that apply</label>
-   <div class="chks" id="f_majors"></div>
+   <label class="fld" style="margin-top:6px">Major(s) — add all that apply</label>
+   <div style="display:flex;gap:8px">
+    <input id="f_majorinput" list="majorList" placeholder="Type a major, e.g. Finance — then Enter" autocomplete="off" style="flex:1;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:14px">
+    <button type="button" class="btn" id="f_majoradd">+ Add</button>
+   </div>
+   <datalist id="majorList">
+    <option>Accounting</option><option>Finance</option><option>Economics</option><option>Business Administration</option><option>Management</option><option>Marketing</option><option>Information Systems (MIS)</option><option>Supply Chain Management</option><option>Operations Management</option><option>Business Analytics</option><option>Data Analytics</option><option>Data Science</option><option>Statistics</option><option>Mathematics</option><option>Applied Mathematics</option><option>Actuarial Science</option><option>Computer Science</option><option>Computer Engineering</option><option>Information Technology</option><option>Entrepreneurship</option><option>International Business</option><option>Real Estate</option><option>Risk Management &amp; Insurance</option><option>Human Resources</option><option>Public Policy</option><option>Political Science</option><option>Communications</option><option>Public Relations</option><option>Journalism</option><option>English</option><option>History</option><option>Philosophy</option><option>Psychology</option><option>Sociology</option><option>Anthropology</option><option>Criminal Justice</option><option>Education</option><option>Nursing</option><option>Biology</option><option>Biochemistry</option><option>Chemistry</option><option>Physics</option><option>Environmental Science</option><option>Mechanical Engineering</option><option>Electrical Engineering</option><option>Civil Engineering</option><option>Chemical Engineering</option><option>Industrial Engineering</option><option>Biomedical Engineering</option><option>Aerospace Engineering</option><option>Architecture</option><option>Graphic Design</option><option>Industrial Design</option><option>Hospitality Management</option><option>Sport Management</option><option>Music</option><option>Art History</option><option>Film &amp; Media Studies</option><option>Linguistics</option><option>Neuroscience</option><option>Cognitive Science</option><option>Geology</option><option>Geography</option><option>Urban Planning</option><option>Social Work</option><option>Kinesiology</option><option>Public Health</option><option>Nutrition</option><option>Agricultural Economics</option>
+   </datalist>
+   <div class="chks" id="f_majors" style="margin-top:10px"></div>
   </div>
 
   <div class="wstep hide" data-step="3">
@@ -124,13 +131,17 @@ a.dl{color:var(--accent)}
    <h2 class="wq">Your goal &amp; résumé</h2>
    <p class="wsub">The AI tools use these to tailor your outreach and résumé tips. A sentence is plenty.</p>
    <label class="fld">What are you hoping to land?<textarea id="f_goals" placeholder="A short line about the role or path you're after"></textarea></label>
-   <label class="fld">Your résumé <span class="small">(plain text)</span><textarea id="f_resume" style="min-height:150px" placeholder="Paste your résumé text here"></textarea></label>
+   <label class="fld">Your résumé <span class="small">(PDF, DOCX, or TXT)</span></label>
+   <input type="file" id="f_resumefile" accept=".pdf,.docx,.txt" style="display:block">
+   <div id="f_resumestat" class="small" style="margin-top:6px;color:var(--mut)">We read the text in your browser to tailor outreach &amp; résumé tips — the file isn't uploaded anywhere.</div>
+   <div class="small" style="margin-top:6px"><a id="f_resumepaste" href="#" style="color:var(--accent)">…or paste it as text instead</a></div>
+   <textarea id="f_resume" class="hide" style="min-height:150px;margin-top:8px" placeholder="Paste your résumé text here"></textarea>
   </div>
 
   <div class="wstep hide" data-step="5">
    <h2 class="wq">Add your LinkedIn connections</h2>
-   <p class="wsub">Get the file the compliant way: LinkedIn → <b>Settings &amp; Privacy → Data Privacy → Get a copy of your data → Connections → Request archive</b>. You'll get a <b>Connections.csv</b> by email. It's parsed right here in your browser—it never leaves your device.</p>
-   <label class="fld">Upload Connections.csv<input type="file" id="f_csv" accept=".csv"></label>
+   <p class="wsub">Get the file the compliant way (on desktop): LinkedIn → <b>Settings &amp; Privacy → Data Privacy → Get a copy of your data</b> → choose <b>“Download larger data archive…”</b> → <b>Request archive</b>. LinkedIn emails you a <b>.zip</b> (usually within minutes). Just drop the whole <b>.zip</b> here — FootIn pulls out your <b>Connections.csv</b> automatically. Everything is parsed in your browser; nothing is uploaded.</p>
+   <label class="fld">Drop your LinkedIn export (<b>.zip</b>) — or a Connections.csv<input type="file" id="f_csv" accept=".zip,.csv"></label>
    <div class="small" style="margin:8px 0 4px">…or paste the CSV contents:</div>
    <textarea id="f_csvtext" placeholder="Paste the contents of your Connections.csv here"></textarea>
    <div id="csvstat" class="small" style="margin-top:8px"></div>
@@ -196,10 +207,16 @@ function renderFieldChips(){const c=document.getElementById("f_fields");c.innerH
  c.querySelectorAll(".chk").forEach(el=>el.addEventListener("click",()=>{const f=el.getAttribute("data-f");chosenFields.includes(f)?chosenFields=chosenFields.filter(x=>x!==f):chosenFields.push(f);renderFieldChips();}));}
 renderFieldChips();
 
-const MAJOR_OPTS=["Accounting","Finance","Economics","Business Administration / Management","Marketing","Information Systems / MIS","Supply Chain / Operations","Data Analytics","Computer Science","Entrepreneurship","International Business","Real Estate","Statistics","Mathematics","Communications","Human Resources"];
 let chosenMajors=[];
-function renderMajorChips(){const c=document.getElementById("f_majors");if(!c)return;c.innerHTML=MAJOR_OPTS.map(m=>`<span class="chk${chosenMajors.includes(m)?' on':''}" data-m="${esc(m)}">${esc(m)}</span>`).join("");
- c.querySelectorAll(".chk").forEach(el=>el.addEventListener("click",()=>{const m=el.getAttribute("data-m");chosenMajors.includes(m)?chosenMajors=chosenMajors.filter(x=>x!==m):chosenMajors.push(m);renderMajorChips();}));}
+function renderMajorChips(){const c=document.getElementById("f_majors");if(!c)return;
+ c.innerHTML=chosenMajors.length?chosenMajors.map(m=>`<span class="chk on" data-m="${esc(m)}">${esc(m)} <b style="margin-left:5px">✕</b></span>`).join(""):`<span class="small">No majors added yet — type one above and press Enter (or click + Add).</span>`;
+ c.querySelectorAll(".chk").forEach(el=>el.addEventListener("click",()=>{const m=el.getAttribute("data-m");chosenMajors=chosenMajors.filter(x=>x!==m);renderMajorChips();}));}
+function addMajor(v){v=(v||"").trim();if(!v)return;if(!chosenMajors.some(x=>x.toLowerCase()===v.toLowerCase()))chosenMajors.push(v);renderMajorChips();}
+(function(){const inp=document.getElementById("f_majorinput"),btn=document.getElementById("f_majoradd");if(!inp)return;
+ const commit=()=>{addMajor(inp.value);inp.value="";inp.focus();};
+ inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();commit();}});
+ inp.addEventListener("change",()=>{if(inp.value.trim())commit();});
+ if(btn)btn.addEventListener("click",commit);})();
 renderMajorChips();
 
 let csvRows=[];
@@ -216,7 +233,46 @@ function parseCSV(text){
   rows.push({name,company:(f[iC]||"").trim(),position:(f[iP]||"").trim(),url:(f[iU]||"").trim()});}
  return rows;
 }
-document.getElementById("f_csv").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=ev=>{try{csvRows=parseCSV(ev.target.result);setCsvStat();}catch(err){document.getElementById("csvstat").innerHTML='<span style="color:#c0473f">Could not parse that file.</span>';}};rd.readAsText(file);});
+// lazy-load a CDN library once
+function loadScript(src){return new Promise((res,rej)=>{if([...document.scripts].some(s=>s.src===src))return res();const s=document.createElement("script");s.src=src;s.onload=()=>res();s.onerror=()=>rej(new Error("Couldn't load a required library — check your connection."));document.head.appendChild(s);});}
+// extract plain text from an uploaded resume (PDF/DOCX/TXT), all in-browser
+async function parseResumeFile(file){
+ const n=file.name.toLowerCase();
+ if(n.endsWith(".txt"))return (await file.text()).trim();
+ if(n.endsWith(".pdf")){
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  let t="";for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const c=await pg.getTextContent();t+=c.items.map(x=>x.str).join(" ")+"\n";}
+  return t.trim();
+ }
+ if(n.endsWith(".docx")){
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");
+  const r=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});
+  return ((r&&r.value)||"").trim();
+ }
+ throw new Error("Please upload a PDF, DOCX, or TXT file.");
+}
+(function(){const fi=document.getElementById("f_resumefile"),pl=document.getElementById("f_resumepaste");
+ if(fi)fi.addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;const stat=document.getElementById("f_resumestat");stat.textContent="Reading "+f.name+"…";
+  try{const txt=await parseResumeFile(f);
+   if(!txt||txt.length<30){stat.innerHTML='<span style="color:#c0473f">Couldn\'t pull text from that file (a scanned image won\'t work). Paste your résumé instead.</span>';document.getElementById("f_resume").classList.remove("hide");return;}
+   document.getElementById("f_resume").value=txt;
+   stat.innerHTML='<span style="color:#4d7a5b">✓ Loaded '+esc(f.name)+' ('+txt.length+' characters).</span>';
+  }catch(err){stat.innerHTML='<span style="color:#c0473f">'+esc(err.message||"Could not read that file.")+' You can paste your résumé instead.</span>';document.getElementById("f_resume").classList.remove("hide");}});
+ if(pl)pl.addEventListener("click",e=>{e.preventDefault();const ta=document.getElementById("f_resume");ta.classList.remove("hide");ta.focus();});})();
+// connections: accept the LinkedIn .zip (auto-extract Connections.csv) or a raw .csv
+document.getElementById("f_csv").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;const stat=document.getElementById("csvstat");stat.textContent="Reading "+file.name+"…";
+ try{
+  if(file.name.toLowerCase().endsWith(".zip")){
+   await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js");
+   const zip=await window.JSZip.loadAsync(await file.arrayBuffer());
+   let entry=null;zip.forEach((path,f)=>{if(!entry&&/(^|\/)connections\.csv$/i.test(path))entry=f;});
+   if(!entry){const csvs=[];zip.forEach((path,f)=>{if(/\.csv$/i.test(path))csvs.push(f);});for(const f of csvs){const txt=await f.async("string");if(/first name/i.test(txt)&&/last name/i.test(txt)){entry=f;break;}}}
+   if(!entry)throw new Error("No Connections.csv was found inside that .zip.");
+   csvRows=parseCSV(await entry.async("string"));setCsvStat();
+  }else{csvRows=parseCSV(await file.text());setCsvStat();}
+ }catch(err){document.getElementById("csvstat").innerHTML='<span style="color:#c0473f">'+esc(err.message||"Could not read that file.")+' Upload your LinkedIn .zip or a Connections.csv (or paste the CSV below).</span>';}});
 document.getElementById("f_csvtext").addEventListener("input",e=>{const t=e.target.value;if(t.trim().length>20){try{csvRows=parseCSV(t);setCsvStat();}catch(err){}}});
 
 // ---------- scoring ----------
@@ -263,7 +319,9 @@ function fillProfile(p){
  chosenFields=(p.fields||[]).slice();renderFieldChips();
  chosenMajors=(p.major?(""+p.major).split(",").map(s=>s.trim()).filter(Boolean):[]);renderMajorChips();
  document.getElementById("f_companies").value=(p.companies||[]).join(", ");
- document.getElementById("f_loc").value=p.loc||"";document.getElementById("f_resume").value=p.resume||"";
+ document.getElementById("f_loc").value=p.loc||"";
+ const rt=document.getElementById("f_resume");rt.value=p.resume||"";
+ if(p.resume){rt.classList.remove("hide");const rs=document.getElementById("f_resumestat");if(rs)rs.innerHTML='<span style="color:#4d7a5b">✓ Using your saved résumé — edit below, or upload a new file to replace it.</span>';}
 }
 let RANKED=[],PROFILE=null;
 function build(){
